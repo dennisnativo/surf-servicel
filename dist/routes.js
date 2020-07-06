@@ -1,0 +1,19 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var express_1 = require("express");
+var pagtel_logapi_1 = require("pagtel-logapi");
+var header_1 = __importDefault(require("./app/middlewares/header"));
+var ServCelController_1 = __importDefault(require("./app/controllers/ServCelController"));
+var routes = express_1.Router();
+var uri = process.env.APP_URI;
+routes.all('*', pagtel_logapi_1.logsStart);
+routes.all('*', header_1.default);
+routes.route(uri + '/consultaTelefone')
+    .post(ServCelController_1.default.index);
+// routes.route(uri + '/recargaTelefone')
+//   .post(ServCelController.store)
+routes.all('*', pagtel_logapi_1.logsEnd);
+exports.default = routes;
