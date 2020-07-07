@@ -1,4 +1,23 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -35,45 +54,161 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+var xml2js_1 = __importDefault(require("xml2js"));
+var Yup = __importStar(require("yup"));
+var ServCel_1 = __importDefault(require("../models/ServCel"));
+var buildXml = function (value) {
+    var builder = new xml2js_1.default.Builder({
+        renderOpts: { pretty: false }
+    });
+    return builder.buildObject({
+        methodResponse: {
+            params: {
+                member: {
+                    name: 'codResposta',
+                    value: value
+                }
+            }
+        }
+    });
+};
 var ServCelController = /** @class */ (function () {
     function ServCelController() {
     }
     ServCelController.index = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var statusCode, response;
+            var statusCode, response, schema;
+            var _this = this;
             return __generator(this, function (_a) {
                 statusCode = 200;
                 response = {
-                    codResposta: ''
+                    codResposta: '10'
                 };
-                console.log(req);
-                res.status(statusCode).json({ OK: true });
-                return [2 /*return*/, next()
-                    // const schema = Yup.object().shape({
-                    //   msisdn: Yup.string().required('MSISDN é obrigatório')
-                    // })
-                    // schema.validate(req.body)
-                    //   .then(async (body: any) => {
-                    //     req.body.objRes = {
-                    //       statusCode,
-                    //       response
-                    //     }
-                    //     res.status(statusCode).json(response)
-                    //     return next()
-                    //   })
-                    //   .catch((err: any) => {
-                    //     statusCode = 400
-                    //     response.codResposta = '10'
-                    //     console.log(err)
-                    //     req.body.objRes = {
-                    //       statusCode,
-                    //       response
-                    //     }
-                    //     res.status(statusCode).json(response)
-                    //     return next()
-                    //   })
-                ];
+                schema = Yup.object().shape({
+                    msisdn: Yup.string().required('MSISDN é obrigatório'),
+                    valor: Yup.string().required('Valor é obrigatório'),
+                    origem: Yup.string().required('Origem é obrigatório'),
+                    produto: Yup.string().required('Produto é obrigatório'),
+                    operadora: Yup.string().required('Operadora é obrigatório')
+                });
+                schema.validate(req.body.xml)
+                    .then(function (body) { return __awaiter(_this, void 0, void 0, function () {
+                    var responseApi;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0: return [4 /*yield*/, ServCel_1.default.procInsServCel('Consulta', 200, '', body)];
+                            case 1:
+                                _a.sent();
+                                return [4 /*yield*/, ServCel_1.default.procGetCodResposta(body.msisdn)];
+                            case 2:
+                                responseApi = _a.sent();
+                                if (responseApi) {
+                                    response.codResposta = responseApi.codResposta;
+                                }
+                                req.body.objRes = {
+                                    statusCode: statusCode,
+                                    response: response
+                                };
+                                res.format({
+                                    'application/xml': function () {
+                                        res.status(statusCode).send(buildXml(response.codResposta));
+                                    }
+                                });
+                                return [4 /*yield*/, ServCel_1.default.procInsServCel('Consulta', 210, response.codResposta, body)];
+                            case 3:
+                                _a.sent();
+                                return [2 /*return*/, next()];
+                        }
+                    });
+                }); })
+                    .catch(function (err) {
+                    statusCode = 400;
+                    console.log(err);
+                    req.body.objRes = {
+                        statusCode: statusCode,
+                        response: response
+                    };
+                    res.format({
+                        'application/xml': function () {
+                            res.status(statusCode).send(buildXml(response.codResposta));
+                        }
+                    });
+                    return next();
+                });
+                return [2 /*return*/];
+            });
+        });
+    };
+    ServCelController.store = function (req, res, next) {
+        return __awaiter(this, void 0, void 0, function () {
+            var statusCode, response, schema;
+            var _this = this;
+            return __generator(this, function (_a) {
+                statusCode = 200;
+                response = {
+                    codResposta: '10'
+                };
+                schema = Yup.object().shape({
+                    msisdn: Yup.string().required('MSISDN é obrigatório'),
+                    valor: Yup.string().required('Valor é obrigatório'),
+                    origem: Yup.string().required('Origem é obrigatório'),
+                    dataOrigem: Yup.string().required('Data de origem é obrigatório'),
+                    dataServCel: Yup.string().required('Data da transação é obrigatório'),
+                    nsuOrigem: Yup.string().required('NSU de origem é obrigatório'),
+                    nsuServCel: Yup.string().required('NSU da transação é obrigatório'),
+                    produto: Yup.string().required('Produto é obrigatório'),
+                    chave: Yup.string().required('Chave é obrigatório'),
+                    operadora: Yup.string().required('Operadora é obrigatório')
+                });
+                schema.validate(req.body.xml)
+                    .then(function (body) { return __awaiter(_this, void 0, void 0, function () {
+                    var responseApi;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0: return [4 /*yield*/, ServCel_1.default.procInsServCel('Recarga', 200, '', body)];
+                            case 1:
+                                _a.sent();
+                                return [4 /*yield*/, ServCel_1.default.procGetCodResposta(body.msisdn)];
+                            case 2:
+                                responseApi = _a.sent();
+                                if (responseApi) {
+                                    response.codResposta = responseApi.codResposta;
+                                }
+                                req.body.objRes = {
+                                    statusCode: statusCode,
+                                    response: response
+                                };
+                                res.format({
+                                    'application/xml': function () {
+                                        res.status(statusCode).send(buildXml(response.codResposta));
+                                    }
+                                });
+                                return [4 /*yield*/, ServCel_1.default.procInsServCel('Recarga', 210, response.codResposta, body)];
+                            case 3:
+                                _a.sent();
+                                return [2 /*return*/, next()];
+                        }
+                    });
+                }); })
+                    .catch(function (err) {
+                    statusCode = 400;
+                    console.log(err);
+                    req.body.objRes = {
+                        statusCode: statusCode,
+                        response: response
+                    };
+                    res.format({
+                        'application/xml': function () {
+                            res.status(statusCode).send(buildXml(response.codResposta));
+                        }
+                    });
+                    return next();
+                });
+                return [2 /*return*/];
             });
         });
     };

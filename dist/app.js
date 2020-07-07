@@ -43,6 +43,7 @@ require("dotenv/config");
 var express_1 = __importDefault(require("express"));
 var cors_1 = __importDefault(require("cors"));
 var body_parser_1 = __importDefault(require("body-parser"));
+var express_xml_bodyparser_1 = __importDefault(require("express-xml-bodyparser"));
 var database_1 = __importDefault(require("./database"));
 var routes_1 = __importDefault(require("./routes"));
 var App = /** @class */ (function () {
@@ -75,8 +76,9 @@ var App = /** @class */ (function () {
     };
     App.prototype.middlewares = function () {
         this.server.use(cors_1.default());
-        this.server.use(body_parser_1.default.urlencoded({ extended: true }));
         this.server.use(express_1.default.json());
+        this.server.use(body_parser_1.default.urlencoded({ extended: true }));
+        this.server.use(express_xml_bodyparser_1.default());
     };
     App.prototype.routes = function () {
         this.server.use(routes_1.default);

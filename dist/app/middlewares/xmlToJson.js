@@ -37,16 +37,69 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
+    var request_1, body, response;
     return __generator(this, function (_a) {
         try {
-            req.payload = {
-                project: 'ServCel'
+            request_1 = {
+                msisdn: '',
+                valor: '',
+                origem: '',
+                dataOrigem: '',
+                dataServCel: '',
+                nsuOrigem: '',
+                nsuServCel: '',
+                produto: '',
+                chave: '',
+                operadora: ''
             };
+            body = req.body.methodcall.params[0].member;
+            body.map(function (item) {
+                switch (item.name[0]) {
+                    case 'msisdn':
+                        request_1.msisdn = item.value[0];
+                        break;
+                    case 'valor':
+                        request_1.valor = item.value[0];
+                        break;
+                    case 'origem':
+                        request_1.origem = item.value[0];
+                        break;
+                    case 'dataOrigem':
+                        request_1.dataOrigem = item.value[0];
+                        break;
+                    case 'dataServCel':
+                        request_1.dataServCel = item.value[0];
+                        break;
+                    case 'nsuOrigem':
+                        request_1.nsuOrigem = item.value[0];
+                        break;
+                    case 'nsuServCel':
+                        request_1.nsuServCel = item.value[0];
+                        break;
+                    case 'produto':
+                        request_1.produto = item.value[0];
+                        break;
+                    case 'chave':
+                        request_1.chave = item.value[0];
+                        break;
+                    case 'operadora':
+                        request_1.operadora = item.value[0];
+                        break;
+                }
+            });
+            req.body.xml = request_1;
             return [2 /*return*/, next()];
         }
         catch (err) {
+            response = {
+                codResposta: '10'
+            };
+            req.body.objRes = {
+                statusCode: 401,
+                response: response
+            };
             console.log(err);
-            res.status(401).json({ error: 'Internal Server Error.' });
+            return [2 /*return*/, res.status(401).json(response)];
         }
         return [2 /*return*/];
     });
