@@ -3,6 +3,7 @@ import { Router } from 'express'
 import { logsStart, logsEnd } from 'pagtel-logapi'
 
 import headerMiddleware from './app/middlewares/header'
+import xmlToJsonMiddleware from './app/middlewares/xmlToJson'
 
 import ServCelController from './app/controllers/ServCelController'
 
@@ -14,11 +15,13 @@ routes.all('*', logsStart)
 
 routes.all('*', headerMiddleware)
 
+routes.all('*', xmlToJsonMiddleware)
+
 routes.route(uri + '/consultaTelefone')
   .post(ServCelController.index)
 
-// routes.route(uri + '/recargaTelefone')
-//   .post(ServCelController.store)
+routes.route(uri + '/recargaTelefone')
+  .post(ServCelController.store)
 
 routes.all('*', logsEnd)
 

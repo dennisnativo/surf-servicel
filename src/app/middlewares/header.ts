@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
 
-export default async (req: Request, res: Response, next: NextFunction) => {
+export default async (req: Request | any, res: Response, next: NextFunction) => {
   try {
-    req.body.header = {
+    req.payload = {
       project: 'ServCel'
     }
 

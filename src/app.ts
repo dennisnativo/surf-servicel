@@ -4,6 +4,7 @@ import express from 'express'
 import { Express } from 'express-serve-static-core'
 import cors from 'cors'
 import bodyParser from 'body-parser'
+import bodyParserXml from 'express-xml-bodyparser'
 import sequelize from './database'
 import routes from './routes'
 
@@ -36,8 +37,9 @@ class App {
 
   middlewares () {
     this.server.use(cors())
-    this.server.use(bodyParser.urlencoded({ extended: true }))
     this.server.use(express.json())
+    this.server.use(bodyParser.urlencoded({ extended: true }))
+    this.server.use(bodyParserXml())
   }
 
   routes () {
