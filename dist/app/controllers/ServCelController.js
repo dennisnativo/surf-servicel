@@ -199,7 +199,7 @@ var ServCelController = /** @class */ (function () {
                 });
                 schema.validate(req.body.xml)
                     .then(function (body) { return __awaiter(_this, void 0, void 0, function () {
-                    var servCelResponse, checkPlintron, responseApi;
+                    var servCelResponse, checkPlintron, responseGetAuth, dateNow, transactionID, requestTopUp, responseTopUp, responseApi;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0: return [4 /*yield*/, ServCel_1.default.procInsServCel('Recarga', 200, '', null, body)];
@@ -208,21 +208,45 @@ var ServCelController = /** @class */ (function () {
                                 return [4 /*yield*/, ServCel_1.default.procCheckPlintron()];
                             case 2:
                                 checkPlintron = _a.sent();
-                                if (!checkPlintron) return [3 /*break*/, 3];
-                                response.codResposta = '00';
-                                return [3 /*break*/, 6];
+                                if (!checkPlintron) return [3 /*break*/, 5];
+                                return [4 /*yield*/, ServCel_1.default.procGetAuth(body.msisdn)];
                             case 3:
-                                if (!(servCelResponse.code === '01')) return [3 /*break*/, 4];
-                                response.codResposta = servCelResponse.code;
-                                return [3 /*break*/, 6];
-                            case 4: return [4 /*yield*/, ServCel_1.default.procGetCodResposta(body.msisdn, 'Recarga')];
+                                responseGetAuth = _a.sent();
+                                dateNow = new Date();
+                                transactionID = ('SC' + servCelResponse.idServCel + dateformat_1.default(dateNow, 'yyyymmdhhMMss')).padStart(19, '0');
+                                requestTopUp = {
+                                    productID: responseGetAuth.plintronProductId,
+                                    MSISDN: '55' + body.msisdn,
+                                    amount: body.valor.replace(',', ''),
+                                    transactionID: transactionID,
+                                    terminalID: 'SERVCEL',
+                                    currency: 'BRL',
+                                    cardID: 'Card',
+                                    retailerID: 'MGM',
+                                    twoPhaseCommit: '0'
+                                };
+                                return [4 /*yield*/, ServCel_1.default.procTopUp(responseGetAuth.authentication, requestTopUp)];
+                            case 4:
+                                responseTopUp = _a.sent();
+                                if (responseTopUp.code === '00') {
+                                    response.codResposta = '00';
+                                }
+                                else {
+                                    response.codResposta = '10';
+                                }
+                                return [3 /*break*/, 8];
                             case 5:
+                                if (!(servCelResponse.code === '01')) return [3 /*break*/, 6];
+                                response.codResposta = servCelResponse.code;
+                                return [3 /*break*/, 8];
+                            case 6: return [4 /*yield*/, ServCel_1.default.procGetCodResposta(body.msisdn, 'Recarga')];
+                            case 7:
                                 responseApi = _a.sent();
                                 if (responseApi) {
                                     response.codResposta = responseApi.codResposta;
                                 }
-                                _a.label = 6;
-                            case 6:
+                                _a.label = 8;
+                            case 8:
                                 req.body.objRes = {
                                     statusCode: statusCode,
                                     response: response
@@ -233,7 +257,7 @@ var ServCelController = /** @class */ (function () {
                                     }
                                 });
                                 return [4 /*yield*/, ServCel_1.default.procInsServCel('Recarga', 210, response.codResposta, checkPlintron, body)];
-                            case 7:
+                            case 9:
                                 _a.sent();
                                 return [2 /*return*/, next()];
                         }

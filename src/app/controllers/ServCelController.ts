@@ -138,7 +138,30 @@ class ServCelController {
         const checkPlintron = await ServCelModel.procCheckPlintron()
 
         if (checkPlintron) {
-          response.codResposta = '00'
+          const responseGetAuth: IGetAuthResponse = await ServCelModel.procGetAuth(body.msisdn)
+
+          const dateNow = new Date()
+          const transactionID: string = ('SC' + servCelResponse.idServCel + dateFormat(dateNow, 'yyyymmdhhMMss')).padStart(19, '0')
+
+          const requestTopUp: ITopUpRequest = {
+            productID: responseGetAuth.plintronProductId,
+            MSISDN: '55' + body.msisdn,
+            amount: body.valor.replace(',', ''),
+            transactionID,
+            terminalID: 'SERVCEL',
+            currency: 'BRL',
+            cardID: 'Card',
+            retailerID: 'MGM',
+            twoPhaseCommit: '0'
+          }
+
+          const responseTopUp: ITopUpResponse = await ServCelModel.procTopUp(responseGetAuth.authentication, requestTopUp)
+
+          if (responseTopUp.code === '00') {
+            response.codResposta = '00'
+          } else {
+            response.codResposta = '10'
+          }
         } else {
           if (servCelResponse.code === '01') {
             response.codResposta = servCelResponse.code
