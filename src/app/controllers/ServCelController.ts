@@ -71,7 +71,7 @@ class ServCelController {
             response.codResposta = '10'
           }
         } else {
-          const responseApi: IServCelResponse = await ServCelModel.procGetCodResposta(body.msisdn)
+          const responseApi: IServCelResponse = await ServCelModel.procGetCodResposta(body.msisdn, 'Consulta')
 
           if (responseApi) {
             response.codResposta = responseApi.codResposta
@@ -143,7 +143,7 @@ class ServCelController {
           if (servCelResponse.code === '01') {
             response.codResposta = servCelResponse.code
           } else {
-            const responseApi: IServCelResponse = await ServCelModel.procGetCodResposta(body.msisdn)
+            const responseApi: IServCelResponse = await ServCelModel.procGetCodResposta(body.msisdn, 'Recarga')
 
             if (responseApi) {
               response.codResposta = responseApi.codResposta

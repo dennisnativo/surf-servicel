@@ -134,7 +134,7 @@ var ServCelController = /** @class */ (function () {
                                     response.codResposta = '10';
                                 }
                                 return [3 /*break*/, 7];
-                            case 5: return [4 /*yield*/, ServCel_1.default.procGetCodResposta(body.msisdn)];
+                            case 5: return [4 /*yield*/, ServCel_1.default.procGetCodResposta(body.msisdn, 'Consulta')];
                             case 6:
                                 responseApi = _a.sent();
                                 if (responseApi) {
@@ -215,7 +215,7 @@ var ServCelController = /** @class */ (function () {
                                 if (!(servCelResponse.code === '01')) return [3 /*break*/, 4];
                                 response.codResposta = servCelResponse.code;
                                 return [3 /*break*/, 6];
-                            case 4: return [4 /*yield*/, ServCel_1.default.procGetCodResposta(body.msisdn)];
+                            case 4: return [4 /*yield*/, ServCel_1.default.procGetCodResposta(body.msisdn, 'Recarga')];
                             case 5:
                                 responseApi = _a.sent();
                                 if (responseApi) {

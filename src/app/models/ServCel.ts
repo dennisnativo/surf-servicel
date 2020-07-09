@@ -35,10 +35,10 @@ class ServCel {
     return response
   }
 
-  public static async procGetCodResposta (msisdn: string): Promise<any> {
+  public static async procGetCodResposta (msisdn: string, metodo: string): Promise<any> {
     const response = await sequelize.query(
       `exec HUB360.[recharge].[USP_GET_CODRESPOSTA] 
-        @msisdn=N'${msisdn}'`,
+        @msisdn=N'${msisdn}', @metodo=N'${metodo}'`,
       { type: QueryTypes.SELECT }
     )
       .then((response: any) => {

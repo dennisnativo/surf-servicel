@@ -76,12 +76,12 @@ var ServCel = /** @class */ (function () {
             });
         });
     };
-    ServCel.procGetCodResposta = function (msisdn) {
+    ServCel.procGetCodResposta = function (msisdn, metodo) {
         return __awaiter(this, void 0, void 0, function () {
             var response;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, database_1.default.query("exec HUB360.[recharge].[USP_GET_CODRESPOSTA] \n        @msisdn=N'" + msisdn + "'", { type: sequelize_1.QueryTypes.SELECT })
+                    case 0: return [4 /*yield*/, database_1.default.query("exec HUB360.[recharge].[USP_GET_CODRESPOSTA] \n        @msisdn=N'" + msisdn + "', @metodo=N'" + metodo + "'", { type: sequelize_1.QueryTypes.SELECT })
                             .then(function (response) {
                             return response[0];
                         })
