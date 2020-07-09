@@ -38,16 +38,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = (function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
-        try {
-            req.payload = {
-                project: 'ServCel'
-            };
-            return [2 /*return*/, next()];
-        }
-        catch (err) {
-            console.log(err);
-            res.status(401).json({ error: 'Internal Server Error.' });
-        }
-        return [2 /*return*/];
+        req.payload = {
+            project: 'ServCel'
+        };
+        return [2 /*return*/, next()];
     });
 }); });

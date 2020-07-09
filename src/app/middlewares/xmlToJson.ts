@@ -58,15 +58,15 @@ export default async (req: Request, res: Response, next: NextFunction) => {
     return next()
   } catch (err) {
     const response: IServCelResponse = {
-      codResposta: '10'
+      codResposta: '20'
     }
 
     req.body.objRes = {
-      statusCode: 401,
+      statusCode: 400,
       response
     }
 
     console.log(err)
-    return res.status(401).json(response)
+    return res.status(400).json(response)
   }
 }

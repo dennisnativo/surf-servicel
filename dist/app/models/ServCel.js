@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -40,16 +51,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var sequelize_1 = require("sequelize");
+var request_promise_1 = __importDefault(require("request-promise"));
 var database_1 = __importDefault(require("../../database"));
 var ServCel = /** @class */ (function () {
     function ServCel() {
     }
-    ServCel.procInsServCel = function (metodo, phase, codResposta, request) {
+    ServCel.procInsServCel = function (metodo, phase, codResposta, plintron, request) {
         return __awaiter(this, void 0, void 0, function () {
             var response;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, database_1.default.query("exec HUB360.[recharge].[INS_SERVCEL] \n        @metodo=N'" + metodo + "',\n        @phase=" + phase + ",\n        @msisdn=N'" + request.msisdn + "',\n        @valor=N'" + request.valor + "',\n        @origem=" + request.origem + ",\n        " + ((request.dataOrigem !== '') ? "@dataOrigem=N'" + request.dataOrigem + "'," : '') + "\n        " + ((request.dataServCel !== '') ? "@dataServCel=N'" + request.dataServCel + "'," : '') + "\n        " + ((request.nsuOrigem !== '') ? "@nsuOrigem=N'" + request.nsuOrigem + "'," : '') + "\n        " + ((request.nsuServCel !== '') ? "@nsuServCel=N'" + request.nsuServCel + "'," : '') + "\n        @produto=" + request.produto + ",\n        " + ((request.chave !== '') ? "@chave=N'" + request.chave + "'," : '') + "\n        @operadora=" + request.operadora + "\n        " + ((codResposta !== '') ? ", @codResposta=N'" + codResposta + "'" : ''), { type: sequelize_1.QueryTypes.SELECT })
+                    case 0: return [4 /*yield*/, database_1.default.query("exec HUB360.[recharge].[INS_SERVCEL] \n        @metodo=N'" + metodo + "',\n        @phase=" + phase + ",\n        @msisdn=N'" + request.msisdn + "',\n        @valor=N'" + request.valor + "',\n        @origem=" + request.origem + ",\n        " + ((request.dataOrigem !== '') ? "@dataOrigem=N'" + request.dataOrigem + "'," : '') + "\n        " + ((request.dataServCel !== '') ? "@dataServCel=N'" + request.dataServCel + "'," : '') + "\n        " + ((request.nsuOrigem !== '') ? "@nsuOrigem=N'" + request.nsuOrigem + "'," : '') + "\n        " + ((request.nsuServCel !== '') ? "@nsuServCel=N'" + request.nsuServCel + "'," : '') + "\n        @produto=" + request.produto + ",\n        " + ((request.chave !== '') ? "@chave=N'" + request.chave + "'," : '') + "\n        @operadora=" + request.operadora + "\n        " + ((codResposta !== '') ? ", @codResposta=N'" + codResposta + "'" : '') + "\n        " + ((plintron !== null) ? ", @plintron=" + plintron : ''), { type: sequelize_1.QueryTypes.SELECT })
                             .then(function (response) {
                             return response[0];
                         })
@@ -81,6 +93,67 @@ var ServCel = /** @class */ (function () {
                         response = _a.sent();
                         return [2 /*return*/, response];
                 }
+            });
+        });
+    };
+    ServCel.procCheckPlintron = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var response;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, database_1.default.query('SELECT TOP (1) [plintron] FROM [Hub360].[recharge].[tb_servCel_checkPlintron]', { type: sequelize_1.QueryTypes.SELECT })
+                            .then(function (response) {
+                            return response[0];
+                        })
+                            .catch(function (err) {
+                            console.log(err);
+                            return null;
+                        })];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, response.plintron];
+                }
+            });
+        });
+    };
+    ServCel.procGetAuth = function (operadora) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, database_1.default.query("SELECT * FROM [Hub360].[recharge].[USP_SERVCEL_GETAUTH]\n        WHERE operadora = '" + operadora + "'", { type: sequelize_1.QueryTypes.SELECT })
+                            .then(function (response) {
+                            return response;
+                        })
+                            .catch(function (err) {
+                            console.log(err);
+                            return null;
+                        })];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, response];
+                }
+            });
+        });
+    };
+    ServCel.procTopUp = function (auth, requestData) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response;
+            return __generator(this, function (_a) {
+                response = request_promise_1.default({
+                    uri: 'http://192.168.120.25/Hub360/topUp',
+                    headers: {
+                        Authorization: auth
+                    },
+                    formData: __assign({}, requestData),
+                    method: 'POST'
+                }).then(function (response) {
+                    return JSON.parse(response);
+                }).catch(function (err) {
+                    // console.log(err)
+                    return err;
+                });
+                return [2 /*return*/, response];
             });
         });
     };

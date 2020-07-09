@@ -92,14 +92,14 @@ exports.default = (function (req, res, next) { return __awaiter(void 0, void 0, 
         }
         catch (err) {
             response = {
-                codResposta: '10'
+                codResposta: '20'
             };
             req.body.objRes = {
-                statusCode: 401,
+                statusCode: 400,
                 response: response
             };
             console.log(err);
-            return [2 /*return*/, res.status(401).json(response)];
+            return [2 /*return*/, res.status(400).json(response)];
         }
         return [2 /*return*/];
     });

@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express'
+import dateFormat from 'dateformat'
 import xml from 'xml2js'
 import * as Yup from 'yup'
 
 import ServCelModel from '../models/ServCel'
 
-import { IServCelResponse } from '../interfaces/ServCel'
+import { IServCelResponse, IServCelInsResponse, ITopUpRequest, ITopUpResponse, IGetAuthResponse } from '../interfaces/ServCel'
 
 const buildXml = (value: string): string => {
   const builder = new xml.Builder({
@@ -40,12 +41,41 @@ class ServCelController {
 
     schema.validate(req.body.xml)
       .then(async (body: any) => {
-        await ServCelModel.procInsServCel('Consulta', 200, '', body)
+        const servCelResponse: IServCelInsResponse = await ServCelModel.procInsServCel('Consulta', 200, '', null, body)
 
-        const responseApi: IServCelResponse = await ServCelModel.procGetCodResposta(body.msisdn)
+        const checkPlintron = await ServCelModel.procCheckPlintron()
 
-        if (responseApi) {
-          response.codResposta = responseApi.codResposta
+        if (checkPlintron) {
+          const responseGetAuth: IGetAuthResponse = await ServCelModel.procGetAuth(body.msisdn)
+
+          const dateNow = new Date()
+          const transactionID: string = ('SC' + servCelResponse.idServCel + dateFormat(dateNow, 'yyyymmdhhMMss')).padStart(19, '0')
+
+          const requestTopUp: ITopUpRequest = {
+            productID: responseGetAuth.plintronProductId,
+            MSISDN: '55' + body.msisdn,
+            amount: body.valor.replace(',', ''),
+            transactionID,
+            terminalID: 'SERVCEL',
+            currency: 'BRL',
+            cardID: 'Card',
+            retailerID: 'MGM',
+            twoPhaseCommit: '0'
+          }
+
+          const responseTopUp: ITopUpResponse = await ServCelModel.procTopUp(responseGetAuth.authentication, requestTopUp)
+
+          if (responseTopUp.code === '00') {
+            response.codResposta = '00'
+          } else {
+            response.codResposta = '10'
+          }
+        } else {
+          const responseApi: IServCelResponse = await ServCelModel.procGetCodResposta(body.msisdn)
+
+          if (responseApi) {
+            response.codResposta = responseApi.codResposta
+          }
         }
 
         req.body.objRes = {
@@ -59,7 +89,7 @@ class ServCelController {
           }
         })
 
-        await ServCelModel.procInsServCel('Consulta', 210, response.codResposta, body)
+        await ServCelModel.procInsServCel('Consulta', 210, response.codResposta, checkPlintron, body)
 
         return next()
       })
@@ -103,12 +133,22 @@ class ServCelController {
 
     schema.validate(req.body.xml)
       .then(async (body: any) => {
-        await ServCelModel.procInsServCel('Recarga', 200, '', body)
+        const servCelResponse: IServCelInsResponse = await ServCelModel.procInsServCel('Recarga', 200, '', null, body)
 
-        const responseApi: IServCelResponse = await ServCelModel.procGetCodResposta(body.msisdn)
+        const checkPlintron = await ServCelModel.procCheckPlintron()
 
-        if (responseApi) {
-          response.codResposta = responseApi.codResposta
+        if (checkPlintron) {
+          response.codResposta = '00'
+        } else {
+          if (servCelResponse.code === '01') {
+            response.codResposta = servCelResponse.code
+          } else {
+            const responseApi: IServCelResponse = await ServCelModel.procGetCodResposta(body.msisdn)
+
+            if (responseApi) {
+              response.codResposta = responseApi.codResposta
+            }
+          }
         }
 
         req.body.objRes = {
@@ -122,7 +162,7 @@ class ServCelController {
           }
         })
 
-        await ServCelModel.procInsServCel('Recarga', 210, response.codResposta, body)
+        await ServCelModel.procInsServCel('Recarga', 210, response.codResposta, checkPlintron, body)
 
         return next()
       })

@@ -14,3 +14,34 @@ export interface IServCelRequest {
   chave: string
   operadora: string
 }
+
+export interface IServCelInsResponse {
+  code: string
+  idServCel: string
+}
+
+export interface ITopUpRequest {
+  productID: string
+  MSISDN: string
+  amount: string
+  transactionID: string
+  terminalID: string
+  currency: string
+  cardID: string
+  retailerID: string
+  twoPhaseCommit: string
+}
+
+export interface ITopUpResponse {
+  code: string
+  msg: string
+  transactionID: string
+}
+
+export interface IGetAuthResponse {
+  id: string
+  network: string
+  authentication: string
+  plintronProductId: string
+  ordem: number
+}
