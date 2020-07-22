@@ -116,14 +116,14 @@ var ServCel = /** @class */ (function () {
             });
         });
     };
-    ServCel.procGetAuth = function (operadora) {
+    ServCel.procGetAuth = function (msisdn, operadora) {
         return __awaiter(this, void 0, void 0, function () {
             var response;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, database_1.default.query("SELECT * FROM [Hub360].[recharge].[USP_SERVCEL_GETAUTH]\n        WHERE operadora = '" + operadora + "'", { type: sequelize_1.QueryTypes.SELECT })
+                    case 0: return [4 /*yield*/, database_1.default.query("Exec [Hub360].[recharge].[USP_SERVCEL_GETAUTH]\n      @msisdn=N'" + msisdn + "',\n      @operadora=N'" + operadora + "'", { type: sequelize_1.QueryTypes.SELECT })
                             .then(function (response) {
-                            return response;
+                            return response[0];
                         })
                             .catch(function (err) {
                             console.log(err);

@@ -46,7 +46,7 @@ class ServCelController {
         const checkPlintron = await ServCelModel.procCheckPlintron()
 
         if (checkPlintron) {
-          const responseGetAuth: IGetAuthResponse = await ServCelModel.procGetAuth(body.msisdn)
+          const responseGetAuth: IGetAuthResponse = await ServCelModel.procGetAuth(body.msisdn, body.operadora)
 
           const dateNow = new Date()
           const transactionID: string = ('SC' + servCelResponse.idServCel + dateFormat(dateNow, 'yyyymmdhhMMss')).padStart(19, '0')
@@ -56,7 +56,7 @@ class ServCelController {
             MSISDN: '55' + body.msisdn,
             amount: body.valor.replace(',', ''),
             transactionID,
-            terminalID: 'SERVCEL',
+            terminalID: '02SV',
             currency: 'BRL',
             cardID: 'Card',
             retailerID: 'MGM',
@@ -138,7 +138,7 @@ class ServCelController {
         const checkPlintron = await ServCelModel.procCheckPlintron()
 
         if (checkPlintron) {
-          const responseGetAuth: IGetAuthResponse = await ServCelModel.procGetAuth(body.msisdn)
+          const responseGetAuth: IGetAuthResponse = await ServCelModel.procGetAuth(body.msisdn, body.operadora)
 
           const dateNow = new Date()
           const transactionID: string = ('SC' + servCelResponse.idServCel + dateFormat(dateNow, 'yyyymmdhhMMss')).padStart(19, '0')
@@ -148,11 +148,11 @@ class ServCelController {
             MSISDN: '55' + body.msisdn,
             amount: body.valor.replace(',', ''),
             transactionID,
-            terminalID: 'SERVCEL',
+            terminalID: '02SV',
             currency: 'BRL',
             cardID: 'Card',
             retailerID: 'MGM',
-            twoPhaseCommit: '0'
+            twoPhaseCommit: '1'
           }
 
           const responseTopUp: ITopUpResponse = await ServCelModel.procTopUp(responseGetAuth.authentication, requestTopUp)

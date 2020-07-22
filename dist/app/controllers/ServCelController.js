@@ -108,7 +108,7 @@ var ServCelController = /** @class */ (function () {
                             case 2:
                                 checkPlintron = _a.sent();
                                 if (!checkPlintron) return [3 /*break*/, 5];
-                                return [4 /*yield*/, ServCel_1.default.procGetAuth(body.msisdn)];
+                                return [4 /*yield*/, ServCel_1.default.procGetAuth(body.msisdn, body.operadora)];
                             case 3:
                                 responseGetAuth = _a.sent();
                                 dateNow = new Date();
@@ -118,7 +118,7 @@ var ServCelController = /** @class */ (function () {
                                     MSISDN: '55' + body.msisdn,
                                     amount: body.valor.replace(',', ''),
                                     transactionID: transactionID,
-                                    terminalID: 'SERVCEL',
+                                    terminalID: '02SV',
                                     currency: 'BRL',
                                     cardID: 'Card',
                                     retailerID: 'MGM',
@@ -209,7 +209,7 @@ var ServCelController = /** @class */ (function () {
                             case 2:
                                 checkPlintron = _a.sent();
                                 if (!checkPlintron) return [3 /*break*/, 5];
-                                return [4 /*yield*/, ServCel_1.default.procGetAuth(body.msisdn)];
+                                return [4 /*yield*/, ServCel_1.default.procGetAuth(body.msisdn, body.operadora)];
                             case 3:
                                 responseGetAuth = _a.sent();
                                 dateNow = new Date();
@@ -219,11 +219,11 @@ var ServCelController = /** @class */ (function () {
                                     MSISDN: '55' + body.msisdn,
                                     amount: body.valor.replace(',', ''),
                                     transactionID: transactionID,
-                                    terminalID: 'SERVCEL',
+                                    terminalID: '02SV',
                                     currency: 'BRL',
                                     cardID: 'Card',
                                     retailerID: 'MGM',
-                                    twoPhaseCommit: '0'
+                                    twoPhaseCommit: '1'
                                 };
                                 return [4 /*yield*/, ServCel_1.default.procTopUp(responseGetAuth.authentication, requestTopUp)];
                             case 4:

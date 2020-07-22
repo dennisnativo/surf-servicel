@@ -68,14 +68,15 @@ class ServCel {
     return response.plintron
   }
 
-  public static async procGetAuth (operadora: string): Promise<any> {
+  public static async procGetAuth (msisdn: string, operadora: string): Promise<any> {
     const response = await sequelize.query(
-      `SELECT * FROM [Hub360].[recharge].[USP_SERVCEL_GETAUTH]
-        WHERE operadora = '${operadora}'`,
+      `Exec [Hub360].[recharge].[USP_SERVCEL_GETAUTH]
+      @msisdn=N'${msisdn}',
+      @operadora=N'${operadora}'`,
       { type: QueryTypes.SELECT }
     )
       .then((response: any) => {
-        return response
+        return response[0]
       })
       .catch((err: any) => {
         console.log(err)
