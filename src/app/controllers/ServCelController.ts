@@ -45,37 +45,42 @@ class ServCelController {
 
         const checkPlintron = await ServCelModel.procCheckPlintron()
 
-        if (checkPlintron) {
-          const responseGetAuth: IGetAuthResponse = await ServCelModel.procGetAuth(body.msisdn, body.operadora)
+        if (body.msisdn.length === 11) {
+          // if (await ServCelModel.procNuage(body.msisdn)) {
+          if (checkPlintron) {
+            const responseGetAuth: IGetAuthResponse = await ServCelModel.procGetAuth(body.msisdn, body.operadora)
 
-          const dateNow = new Date()
-          const transactionID: string = ('SC' + servCelResponse.idServCel + dateFormat(dateNow, 'yyyymmdhhMMss')).padStart(19, '0')
+            const dateNow = new Date()
+            const transactionID: string = ('SC' + servCelResponse.idServCel + dateFormat(dateNow, 'yyyymmdhhMMss')).padStart(19, '0')
 
-          const requestTopUp: ITopUpRequest = {
-            productID: responseGetAuth.plintronProductId,
-            MSISDN: '55' + body.msisdn,
-            amount: body.valor.replace(',', ''),
-            transactionID,
-            terminalID: '02SV',
-            currency: 'BRL',
-            cardID: 'Card',
-            retailerID: 'MGM',
-            twoPhaseCommit: '0'
-          }
+            const requestTopUp: ITopUpRequest = {
+              productID: responseGetAuth.plintronProductId,
+              MSISDN: '55' + body.msisdn,
+              amount: body.valor.replace(',', ''),
+              transactionID,
+              terminalID: '02SV',
+              currency: 'BRL',
+              cardID: 'Card',
+              retailerID: 'MGM',
+              twoPhaseCommit: '0'
+            }
 
-          const responseTopUp: ITopUpResponse = await ServCelModel.procTopUp(responseGetAuth.authentication, requestTopUp)
+            await ServCelModel.procTopUp(responseGetAuth.authentication, requestTopUp)
 
-          if (responseTopUp.code === '00') {
             response.codResposta = '00'
           } else {
-            response.codResposta = '10'
-          }
-        } else {
-          const responseApi: IServCelResponse = await ServCelModel.procGetCodResposta(body.msisdn, 'Consulta')
+            const responseApi: IServCelResponse = await ServCelModel.procGetCodResposta(body.msisdn, 'Consulta')
 
-          if (responseApi) {
-            response.codResposta = responseApi.codResposta
+            if (responseApi) {
+              response.codResposta = responseApi.codResposta
+            }
           }
+          // } else {
+          //   console.log('Nuage: FALSE')
+          //   response.codResposta = '10'
+          // }
+        } else {
+          response.codResposta = '12'
         }
 
         req.body.objRes = {
@@ -137,41 +142,45 @@ class ServCelController {
 
         const checkPlintron = await ServCelModel.procCheckPlintron()
 
-        if (checkPlintron) {
-          const responseGetAuth: IGetAuthResponse = await ServCelModel.procGetAuth(body.msisdn, body.operadora)
+        if (body.msisdn.length === 11) {
+          if (checkPlintron) {
+            const responseGetAuth: IGetAuthResponse = await ServCelModel.procGetAuth(body.msisdn, body.operadora)
 
-          const dateNow = new Date()
-          const transactionID: string = ('SC' + servCelResponse.idServCel + dateFormat(dateNow, 'yyyymmdhhMMss')).padStart(19, '0')
+            const dateNow = new Date()
+            const transactionID: string = ('SC' + servCelResponse.idServCel + dateFormat(dateNow, 'yyyymmdhhMMss')).padStart(19, '0')
 
-          const requestTopUp: ITopUpRequest = {
-            productID: responseGetAuth.plintronProductId,
-            MSISDN: '55' + body.msisdn,
-            amount: body.valor.replace(',', ''),
-            transactionID,
-            terminalID: '02SV',
-            currency: 'BRL',
-            cardID: 'Card',
-            retailerID: 'MGM',
-            twoPhaseCommit: '1'
-          }
+            const requestTopUp: ITopUpRequest = {
+              productID: responseGetAuth.plintronProductId,
+              MSISDN: '55' + body.msisdn,
+              amount: body.valor.replace(',', ''),
+              transactionID,
+              terminalID: '02SV',
+              currency: 'BRL',
+              cardID: 'Card',
+              retailerID: 'MGM',
+              twoPhaseCommit: '1'
+            }
 
-          const responseTopUp: ITopUpResponse = await ServCelModel.procTopUp(responseGetAuth.authentication, requestTopUp)
+            const responseTopUp: ITopUpResponse = await ServCelModel.procTopUp(responseGetAuth.authentication, requestTopUp)
 
-          if (responseTopUp.code === '00') {
-            response.codResposta = '00'
+            if (responseTopUp.code === '00') {
+              response.codResposta = '00'
+            } else {
+              response.codResposta = '10'
+            }
           } else {
-            response.codResposta = '10'
-          }
-        } else {
-          if (servCelResponse.code === '01') {
-            response.codResposta = servCelResponse.code
-          } else {
-            const responseApi: IServCelResponse = await ServCelModel.procGetCodResposta(body.msisdn, 'Recarga')
+            if (servCelResponse.code === '01') {
+              response.codResposta = servCelResponse.code
+            } else {
+              const responseApi: IServCelResponse = await ServCelModel.procGetCodResposta(body.msisdn, 'Recarga')
 
-            if (responseApi) {
-              response.codResposta = responseApi.codResposta
+              if (responseApi) {
+                response.codResposta = responseApi.codResposta
+              }
             }
           }
+        } else {
+          response.codResposta = '12'
         }
 
         req.body.objRes = {

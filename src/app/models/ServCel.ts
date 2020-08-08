@@ -103,6 +103,24 @@ class ServCel {
 
     return response
   }
+
+  public static async procNuage (msisdn: string): Promise<any> {
+    const response = request({
+      uri: 'http://192.168.120.25/Nuage/api/v1/conta',
+      body: {
+        msisdn: '55' + msisdn
+      },
+      method: 'POST',
+      json: true
+    }).then((response: any) => {
+      return (response.sucesso === 0)
+    }).catch((err) => {
+      console.log(err)
+      return false
+    })
+
+    return response
+  }
 }
 
 export default ServCel
