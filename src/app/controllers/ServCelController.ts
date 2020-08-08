@@ -65,9 +65,13 @@ class ServCelController {
               twoPhaseCommit: '0'
             }
 
-            await ServCelModel.procTopUp(responseGetAuth.authentication, requestTopUp)
+            const responseTopUp: ITopUpResponse = await ServCelModel.procTopUp(responseGetAuth.authentication, requestTopUp)
 
-            response.codResposta = '00'
+            if (responseTopUp.code === '00') {
+              response.codResposta = '00'
+            } else {
+              response.codResposta = '10'
+            }
           } else {
             const responseApi: IServCelResponse = await ServCelModel.procGetCodResposta(body.msisdn, 'Consulta')
 
