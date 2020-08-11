@@ -2,7 +2,7 @@ import { QueryTypes } from 'sequelize'
 import request from 'request-promise'
 import sequelize from '../../database'
 
-import { IServCelRequest, ITopUpRequest } from '../interfaces/ServCel'
+import { IServCelRequest, ITopUpRequest, ITopUpResponse } from '../interfaces/ServCel'
 
 class ServCel {
   public static async procInsServCel (metodo: string, phase: number, codResposta: string, plintron: boolean | null, request: IServCelRequest): Promise<any> {
@@ -84,6 +84,30 @@ class ServCel {
       })
 
     return response
+  }
+
+  public static async procInsPlintron (auth: string, requestData: ITopUpRequest): Promise<any> {
+    const response = await sequelize.query(
+      `Exec [Hub360].[recharge].[INS_SERVCEL_PLINTRON]
+        @authentication=N'${auth}',
+        @produtoID=N'${requestData.productID}',
+        @transactionID=N'${requestData.transactionID}',
+        @msisdn=N'${requestData.MSISDN}',
+        @amount=N'${requestData.amount}',
+        @terminalID=N'${requestData.terminalID}',
+        @currency=N'${requestData.currency}',
+        @cardID=N'${requestData.cardID}',
+        @retailerID=N'${requestData.retailerID}',
+        @phase=${requestData.twoPhaseCommit}`,
+      { type: QueryTypes.SELECT }
+    )
+      .then((response: any) => {
+        return response[0]
+      })
+      .catch((err: any) => {
+        console.log(err)
+        return null
+      })
   }
 
   public static async procTopUp (auth: string, requestData: ITopUpRequest): Promise<any> {

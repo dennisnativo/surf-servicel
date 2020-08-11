@@ -136,6 +136,26 @@ var ServCel = /** @class */ (function () {
             });
         });
     };
+    ServCel.procInsPlintron = function (auth, requestData) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, database_1.default.query("Exec [Hub360].[recharge].[INS_SERVCEL_PLINTRON]\n        @authentication=N'" + auth + "',\n        @produtoID=N'" + requestData.productID + "',\n        @transactionID=N'" + requestData.transactionID + "',\n        @msisdn=N'" + requestData.MSISDN + "',\n        @amount=N'" + requestData.amount + "',\n        @terminalID=N'" + requestData.terminalID + "',\n        @currency=N'" + requestData.currency + "',\n        @cardID=N'" + requestData.cardID + "',\n        @retailerID=N'" + requestData.retailerID + "',\n        @phase=" + requestData.twoPhaseCommit, { type: sequelize_1.QueryTypes.SELECT })
+                            .then(function (response) {
+                            return response[0];
+                        })
+                            .catch(function (err) {
+                            console.log(err);
+                            return null;
+                        })];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
     ServCel.procTopUp = function (auth, requestData) {
         return __awaiter(this, void 0, void 0, function () {
             var response;

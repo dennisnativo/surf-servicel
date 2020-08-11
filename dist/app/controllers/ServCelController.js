@@ -89,81 +89,104 @@ var ServCelController = /** @class */ (function () {
                 response = {
                     codResposta: '10'
                 };
-                schema = Yup.object().shape({
-                    msisdn: Yup.string().required('MSISDN é obrigatório'),
-                    valor: Yup.string().required('Valor é obrigatório'),
-                    origem: Yup.string().required('Origem é obrigatório'),
-                    produto: Yup.string().required('Produto é obrigatório'),
-                    operadora: Yup.string().required('Operadora é obrigatório')
-                });
-                schema.validate(req.body.xml)
-                    .then(function (body) { return __awaiter(_this, void 0, void 0, function () {
-                    var servCelResponse, checkPlintron, responseGetAuth, dateNow, transactionID, requestTopUp, responseTopUp, responseApi;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0: return [4 /*yield*/, ServCel_1.default.procInsServCel('Consulta', 200, '', null, body)];
-                            case 1:
-                                servCelResponse = _a.sent();
-                                return [4 /*yield*/, ServCel_1.default.procCheckPlintron()];
-                            case 2:
-                                checkPlintron = _a.sent();
-                                if (!(body.msisdn.length === 11)) return [3 /*break*/, 8];
-                                if (!checkPlintron) return [3 /*break*/, 5];
-                                return [4 /*yield*/, ServCel_1.default.procGetAuth(body.msisdn, body.operadora)];
-                            case 3:
-                                responseGetAuth = _a.sent();
-                                dateNow = new Date();
-                                transactionID = ('SC' + servCelResponse.idServCel + dateformat_1.default(dateNow, 'yyyymmdhhMMss')).padStart(19, '0');
-                                requestTopUp = {
-                                    productID: responseGetAuth.plintronProductId,
-                                    MSISDN: '55' + body.msisdn,
-                                    amount: body.valor.replace(',', ''),
-                                    transactionID: transactionID,
-                                    terminalID: '02SV',
-                                    currency: 'BRL',
-                                    cardID: 'Card',
-                                    retailerID: 'MGM',
-                                    twoPhaseCommit: '0'
-                                };
-                                return [4 /*yield*/, ServCel_1.default.procTopUp(responseGetAuth.authentication, requestTopUp)];
-                            case 4:
-                                responseTopUp = _a.sent();
-                                if (responseTopUp.code === '00') {
-                                    response.codResposta = '00';
-                                }
-                                else {
-                                    response.codResposta = '10';
-                                }
-                                return [3 /*break*/, 7];
-                            case 5: return [4 /*yield*/, ServCel_1.default.procGetCodResposta(body.msisdn, 'Consulta')];
-                            case 6:
-                                responseApi = _a.sent();
-                                if (responseApi) {
-                                    response.codResposta = responseApi.codResposta;
-                                }
-                                _a.label = 7;
-                            case 7: return [3 /*break*/, 9];
-                            case 8:
-                                response.codResposta = '12';
-                                _a.label = 9;
-                            case 9:
-                                req.body.objRes = {
-                                    statusCode: statusCode,
-                                    response: response
-                                };
-                                res.format({
-                                    'application/xml': function () {
-                                        res.status(statusCode).send(buildXml(response.codResposta));
-                                    }
-                                });
-                                return [4 /*yield*/, ServCel_1.default.procInsServCel('Consulta', 210, response.codResposta, checkPlintron, body)];
-                            case 10:
-                                _a.sent();
-                                return [2 /*return*/, next()];
-                        }
+                try {
+                    schema = Yup.object().shape({
+                        msisdn: Yup.string().required('MSISDN é obrigatório'),
+                        valor: Yup.string().required('Valor é obrigatório'),
+                        origem: Yup.string().required('Origem é obrigatório'),
+                        produto: Yup.string().required('Produto é obrigatório'),
+                        operadora: Yup.string().required('Operadora é obrigatório')
                     });
-                }); })
-                    .catch(function (err) {
+                    schema.validate(req.body.xml)
+                        .then(function (body) { return __awaiter(_this, void 0, void 0, function () {
+                        var servCelResponse, checkPlintron, responseGetAuth, dateNow, transactionID, requestTopUp, responseTopUp, responseApi;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0: return [4 /*yield*/, ServCel_1.default.procInsServCel('Consulta', 200, '', null, body)];
+                                case 1:
+                                    servCelResponse = _a.sent();
+                                    return [4 /*yield*/, ServCel_1.default.procCheckPlintron()];
+                                case 2:
+                                    checkPlintron = _a.sent();
+                                    if (!(body.msisdn.length === 11)) return [3 /*break*/, 11];
+                                    return [4 /*yield*/, ServCel_1.default.procNuage(body.msisdn)];
+                                case 3:
+                                    if (!_a.sent()) return [3 /*break*/, 9];
+                                    if (!checkPlintron) return [3 /*break*/, 6];
+                                    return [4 /*yield*/, ServCel_1.default.procGetAuth(body.msisdn, body.operadora)];
+                                case 4:
+                                    responseGetAuth = _a.sent();
+                                    dateNow = new Date();
+                                    transactionID = ('SC' + servCelResponse.idServCel + dateformat_1.default(dateNow, 'yyyymmdhhMMss')).padStart(19, '0');
+                                    requestTopUp = {
+                                        productID: responseGetAuth.plintronProductId,
+                                        MSISDN: '55' + body.msisdn,
+                                        amount: body.valor.replace(',', ''),
+                                        transactionID: transactionID,
+                                        terminalID: '02SV',
+                                        currency: 'BRL',
+                                        cardID: 'Card',
+                                        retailerID: 'MGM',
+                                        twoPhaseCommit: '0'
+                                    };
+                                    return [4 /*yield*/, ServCel_1.default.procTopUp(responseGetAuth.authentication, requestTopUp)];
+                                case 5:
+                                    responseTopUp = _a.sent();
+                                    if (responseTopUp.code === '00') {
+                                        response.codResposta = '00';
+                                    }
+                                    else {
+                                        response.codResposta = '10';
+                                    }
+                                    return [3 /*break*/, 8];
+                                case 6: return [4 /*yield*/, ServCel_1.default.procGetCodResposta(body.msisdn, 'Consulta')];
+                                case 7:
+                                    responseApi = _a.sent();
+                                    if (responseApi) {
+                                        response.codResposta = responseApi.codResposta;
+                                    }
+                                    _a.label = 8;
+                                case 8: return [3 /*break*/, 10];
+                                case 9:
+                                    response.codResposta = '12';
+                                    _a.label = 10;
+                                case 10: return [3 /*break*/, 12];
+                                case 11:
+                                    response.codResposta = '12';
+                                    _a.label = 12;
+                                case 12:
+                                    req.body.objRes = {
+                                        statusCode: statusCode,
+                                        response: response
+                                    };
+                                    res.format({
+                                        'application/xml': function () {
+                                            res.status(statusCode).send(buildXml(response.codResposta));
+                                        }
+                                    });
+                                    return [4 /*yield*/, ServCel_1.default.procInsServCel('Consulta', 210, response.codResposta, checkPlintron, body)];
+                                case 13:
+                                    _a.sent();
+                                    return [2 /*return*/, next()];
+                            }
+                        });
+                    }); })
+                        .catch(function (err) {
+                        statusCode = 400;
+                        console.log(err);
+                        req.body.objRes = {
+                            statusCode: statusCode,
+                            response: response
+                        };
+                        res.format({
+                            'application/xml': function () {
+                                res.status(statusCode).send(buildXml(response.codResposta));
+                            }
+                        });
+                        return next();
+                    });
+                }
+                catch (err) {
                     statusCode = 400;
                     console.log(err);
                     req.body.objRes = {
@@ -175,8 +198,8 @@ var ServCelController = /** @class */ (function () {
                             res.status(statusCode).send(buildXml(response.codResposta));
                         }
                     });
-                    return next();
-                });
+                    return [2 /*return*/, next()];
+                }
                 return [2 /*return*/];
             });
         });
@@ -190,90 +213,113 @@ var ServCelController = /** @class */ (function () {
                 response = {
                     codResposta: '10'
                 };
-                schema = Yup.object().shape({
-                    msisdn: Yup.string().required('MSISDN é obrigatório'),
-                    valor: Yup.string().required('Valor é obrigatório'),
-                    origem: Yup.string().required('Origem é obrigatório'),
-                    dataOrigem: Yup.string().required('Data de origem é obrigatório'),
-                    dataServCel: Yup.string().required('Data da transação é obrigatório'),
-                    nsuOrigem: Yup.string().required('NSU de origem é obrigatório'),
-                    nsuServCel: Yup.string().required('NSU da transação é obrigatório'),
-                    produto: Yup.string().required('Produto é obrigatório'),
-                    chave: Yup.string().required('Chave é obrigatório'),
-                    operadora: Yup.string().required('Operadora é obrigatório')
-                });
-                schema.validate(req.body.xml)
-                    .then(function (body) { return __awaiter(_this, void 0, void 0, function () {
-                    var servCelResponse, checkPlintron, responseGetAuth, dateNow, transactionID, requestTopUp, responseTopUp, responseApi;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0: return [4 /*yield*/, ServCel_1.default.procInsServCel('Recarga', 200, '', null, body)];
-                            case 1:
-                                servCelResponse = _a.sent();
-                                return [4 /*yield*/, ServCel_1.default.procCheckPlintron()];
-                            case 2:
-                                checkPlintron = _a.sent();
-                                if (!(body.msisdn.length === 11)) return [3 /*break*/, 9];
-                                if (!checkPlintron) return [3 /*break*/, 5];
-                                return [4 /*yield*/, ServCel_1.default.procGetAuth(body.msisdn, body.operadora)];
-                            case 3:
-                                responseGetAuth = _a.sent();
-                                dateNow = new Date();
-                                transactionID = ('SC' + servCelResponse.idServCel + dateformat_1.default(dateNow, 'yyyymmdhhMMss')).padStart(19, '0');
-                                requestTopUp = {
-                                    productID: responseGetAuth.plintronProductId,
-                                    MSISDN: '55' + body.msisdn,
-                                    amount: body.valor.replace(',', ''),
-                                    transactionID: transactionID,
-                                    terminalID: '02SV',
-                                    currency: 'BRL',
-                                    cardID: 'Card',
-                                    retailerID: 'MGM',
-                                    twoPhaseCommit: '1'
-                                };
-                                return [4 /*yield*/, ServCel_1.default.procTopUp(responseGetAuth.authentication, requestTopUp)];
-                            case 4:
-                                responseTopUp = _a.sent();
-                                if (responseTopUp.code === '00') {
-                                    response.codResposta = '00';
-                                }
-                                else {
-                                    response.codResposta = '10';
-                                }
-                                return [3 /*break*/, 8];
-                            case 5:
-                                if (!(servCelResponse.code === '01')) return [3 /*break*/, 6];
-                                response.codResposta = servCelResponse.code;
-                                return [3 /*break*/, 8];
-                            case 6: return [4 /*yield*/, ServCel_1.default.procGetCodResposta(body.msisdn, 'Recarga')];
-                            case 7:
-                                responseApi = _a.sent();
-                                if (responseApi) {
-                                    response.codResposta = responseApi.codResposta;
-                                }
-                                _a.label = 8;
-                            case 8: return [3 /*break*/, 10];
-                            case 9:
-                                response.codResposta = '12';
-                                _a.label = 10;
-                            case 10:
-                                req.body.objRes = {
-                                    statusCode: statusCode,
-                                    response: response
-                                };
-                                res.format({
-                                    'application/xml': function () {
-                                        res.status(statusCode).send(buildXml(response.codResposta));
-                                    }
-                                });
-                                return [4 /*yield*/, ServCel_1.default.procInsServCel('Recarga', 210, response.codResposta, checkPlintron, body)];
-                            case 11:
-                                _a.sent();
-                                return [2 /*return*/, next()];
-                        }
+                try {
+                    schema = Yup.object().shape({
+                        msisdn: Yup.string().required('MSISDN é obrigatório'),
+                        valor: Yup.string().required('Valor é obrigatório'),
+                        origem: Yup.string().required('Origem é obrigatório'),
+                        dataOrigem: Yup.string().required('Data de origem é obrigatório'),
+                        dataServCel: Yup.string().required('Data da transação é obrigatório'),
+                        nsuOrigem: Yup.string().required('NSU de origem é obrigatório'),
+                        nsuServCel: Yup.string().required('NSU da transação é obrigatório'),
+                        produto: Yup.string().required('Produto é obrigatório'),
+                        chave: Yup.string().required('Chave é obrigatório'),
+                        operadora: Yup.string().required('Operadora é obrigatório')
                     });
-                }); })
-                    .catch(function (err) {
+                    schema.validate(req.body.xml)
+                        .then(function (body) { return __awaiter(_this, void 0, void 0, function () {
+                        var servCelResponse, checkPlintron, responseGetAuth, dateNow, transactionID, requestTopUp, responseTopUp, responseApi;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0: return [4 /*yield*/, ServCel_1.default.procInsServCel('Recarga', 200, '', null, body)];
+                                case 1:
+                                    servCelResponse = _a.sent();
+                                    return [4 /*yield*/, ServCel_1.default.procCheckPlintron()];
+                                case 2:
+                                    checkPlintron = _a.sent();
+                                    if (!(body.msisdn.length === 11)) return [3 /*break*/, 12];
+                                    return [4 /*yield*/, ServCel_1.default.procNuage(body.msisdn)];
+                                case 3:
+                                    if (!_a.sent()) return [3 /*break*/, 10];
+                                    if (!checkPlintron) return [3 /*break*/, 6];
+                                    return [4 /*yield*/, ServCel_1.default.procGetAuth(body.msisdn, body.operadora)];
+                                case 4:
+                                    responseGetAuth = _a.sent();
+                                    dateNow = new Date();
+                                    transactionID = ('SC' + servCelResponse.idServCel + dateformat_1.default(dateNow, 'yyyymmdhhMMss')).padStart(19, '0');
+                                    requestTopUp = {
+                                        productID: responseGetAuth.plintronProductId,
+                                        MSISDN: '55' + body.msisdn,
+                                        amount: body.valor.replace(',', ''),
+                                        transactionID: transactionID,
+                                        terminalID: '02SV',
+                                        currency: 'BRL',
+                                        cardID: 'Card',
+                                        retailerID: 'MGM',
+                                        twoPhaseCommit: '1'
+                                    };
+                                    return [4 /*yield*/, ServCel_1.default.procTopUp(responseGetAuth.authentication, requestTopUp)];
+                                case 5:
+                                    responseTopUp = _a.sent();
+                                    if (responseTopUp.code === '00') {
+                                        response.codResposta = '00';
+                                    }
+                                    else {
+                                        response.codResposta = '10';
+                                    }
+                                    return [3 /*break*/, 9];
+                                case 6:
+                                    if (!(servCelResponse.code === '01')) return [3 /*break*/, 7];
+                                    response.codResposta = servCelResponse.code;
+                                    return [3 /*break*/, 9];
+                                case 7: return [4 /*yield*/, ServCel_1.default.procGetCodResposta(body.msisdn, 'Recarga')];
+                                case 8:
+                                    responseApi = _a.sent();
+                                    if (responseApi) {
+                                        response.codResposta = responseApi.codResposta;
+                                    }
+                                    _a.label = 9;
+                                case 9: return [3 /*break*/, 11];
+                                case 10:
+                                    response.codResposta = '12';
+                                    _a.label = 11;
+                                case 11: return [3 /*break*/, 13];
+                                case 12:
+                                    response.codResposta = '12';
+                                    _a.label = 13;
+                                case 13:
+                                    req.body.objRes = {
+                                        statusCode: statusCode,
+                                        response: response
+                                    };
+                                    res.format({
+                                        'application/xml': function () {
+                                            res.status(statusCode).send(buildXml(response.codResposta));
+                                        }
+                                    });
+                                    return [4 /*yield*/, ServCel_1.default.procInsServCel('Recarga', 210, response.codResposta, checkPlintron, body)];
+                                case 14:
+                                    _a.sent();
+                                    return [2 /*return*/, next()];
+                            }
+                        });
+                    }); })
+                        .catch(function (err) {
+                        statusCode = 400;
+                        console.log(err);
+                        req.body.objRes = {
+                            statusCode: statusCode,
+                            response: response
+                        };
+                        res.format({
+                            'application/xml': function () {
+                                res.status(statusCode).send(buildXml(response.codResposta));
+                            }
+                        });
+                        return next();
+                    });
+                }
+                catch (err) {
                     statusCode = 400;
                     console.log(err);
                     req.body.objRes = {
@@ -285,8 +331,8 @@ var ServCelController = /** @class */ (function () {
                             res.status(statusCode).send(buildXml(response.codResposta));
                         }
                     });
-                    return next();
-                });
+                    return [2 /*return*/, next()];
+                }
                 return [2 /*return*/];
             });
         });

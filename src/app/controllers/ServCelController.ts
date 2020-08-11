@@ -31,94 +31,111 @@ class ServCelController {
       codResposta: '10'
     }
 
-    const schema = Yup.object().shape({
-      msisdn: Yup.string().required('MSISDN é obrigatório'),
-      valor: Yup.string().required('Valor é obrigatório'),
-      origem: Yup.string().required('Origem é obrigatório'),
-      produto: Yup.string().required('Produto é obrigatório'),
-      operadora: Yup.string().required('Operadora é obrigatório')
-    })
+    try {
+      const schema = Yup.object().shape({
+        msisdn: Yup.string().required('MSISDN é obrigatório'),
+        valor: Yup.string().required('Valor é obrigatório'),
+        origem: Yup.string().required('Origem é obrigatório'),
+        produto: Yup.string().required('Produto é obrigatório'),
+        operadora: Yup.string().required('Operadora é obrigatório')
+      })
 
-    schema.validate(req.body.xml)
-      .then(async (body: any) => {
-        const servCelResponse: IServCelInsResponse = await ServCelModel.procInsServCel('Consulta', 200, '', null, body)
+      schema.validate(req.body.xml)
+        .then(async (body: any) => {
+          const servCelResponse: IServCelInsResponse = await ServCelModel.procInsServCel('Consulta', 200, '', null, body)
 
-        const checkPlintron = await ServCelModel.procCheckPlintron()
+          const checkPlintron = await ServCelModel.procCheckPlintron()
 
-        if (body.msisdn.length === 11) {
-          // if (await ServCelModel.procNuage(body.msisdn)) {
-          if (checkPlintron) {
-            const responseGetAuth: IGetAuthResponse = await ServCelModel.procGetAuth(body.msisdn, body.operadora)
+          if (body.msisdn.length === 11) {
+            if (await ServCelModel.procNuage(body.msisdn)) {
+              if (checkPlintron) {
+                const responseGetAuth: IGetAuthResponse = await ServCelModel.procGetAuth(body.msisdn, body.operadora)
 
-            const dateNow = new Date()
-            const transactionID: string = ('SC' + servCelResponse.idServCel + dateFormat(dateNow, 'yyyymmdhhMMss')).padStart(19, '0')
+                const dateNow = new Date()
+                const transactionID: string = ('SC' + servCelResponse.idServCel + dateFormat(dateNow, 'yyyymmdhhMMss')).padStart(19, '0')
 
-            const requestTopUp: ITopUpRequest = {
-              productID: responseGetAuth.plintronProductId,
-              MSISDN: '55' + body.msisdn,
-              amount: body.valor.replace(',', ''),
-              transactionID,
-              terminalID: '02SV',
-              currency: 'BRL',
-              cardID: 'Card',
-              retailerID: 'MGM',
-              twoPhaseCommit: '0'
-            }
+                const requestTopUp: ITopUpRequest = {
+                  productID: responseGetAuth.plintronProductId,
+                  MSISDN: '55' + body.msisdn,
+                  amount: body.valor.replace(',', ''),
+                  transactionID,
+                  terminalID: '02SV',
+                  currency: 'BRL',
+                  cardID: 'Card',
+                  retailerID: 'MGM',
+                  twoPhaseCommit: '0'
+                }
 
-            const responseTopUp: ITopUpResponse = await ServCelModel.procTopUp(responseGetAuth.authentication, requestTopUp)
+                const responseTopUp: ITopUpResponse = await ServCelModel.procTopUp(responseGetAuth.authentication, requestTopUp)
 
-            if (responseTopUp.code === '00') {
-              response.codResposta = '00'
+                if (responseTopUp.code === '00') {
+                  response.codResposta = '00'
+                } else {
+                  response.codResposta = '10'
+                }
+              } else {
+                const responseApi: IServCelResponse = await ServCelModel.procGetCodResposta(body.msisdn, 'Consulta')
+
+                if (responseApi) {
+                  response.codResposta = responseApi.codResposta
+                }
+              }
             } else {
-              response.codResposta = '10'
+              response.codResposta = '12'
             }
           } else {
-            const responseApi: IServCelResponse = await ServCelModel.procGetCodResposta(body.msisdn, 'Consulta')
+            response.codResposta = '12'
+          }
 
-            if (responseApi) {
-              response.codResposta = responseApi.codResposta
+          req.body.objRes = {
+            statusCode,
+            response
+          }
+
+          res.format({
+            'application/xml': () => {
+              res.status(statusCode).send(buildXml(response.codResposta))
             }
-          }
-          // } else {
-          //   console.log('Nuage: FALSE')
-          //   response.codResposta = '10'
-          // }
-        } else {
-          response.codResposta = '12'
-        }
+          })
 
-        req.body.objRes = {
-          statusCode,
-          response
-        }
+          await ServCelModel.procInsServCel('Consulta', 210, response.codResposta, checkPlintron, body)
 
-        res.format({
-          'application/xml': () => {
-            res.status(statusCode).send(buildXml(response.codResposta))
-          }
+          return next()
         })
+        .catch((err: any) => {
+          statusCode = 400
+          console.log(err)
 
-        await ServCelModel.procInsServCel('Consulta', 210, response.codResposta, checkPlintron, body)
-
-        return next()
-      })
-      .catch((err: any) => {
-        statusCode = 400
-        console.log(err)
-
-        req.body.objRes = {
-          statusCode,
-          response
-        }
-
-        res.format({
-          'application/xml': () => {
-            res.status(statusCode).send(buildXml(response.codResposta))
+          req.body.objRes = {
+            statusCode,
+            response
           }
-        })
 
-        return next()
+          res.format({
+            'application/xml': () => {
+              res.status(statusCode).send(buildXml(response.codResposta))
+            }
+          })
+
+          return next()
+        })
+    } catch (err) {
+      statusCode = 400
+      console.log(err)
+
+      req.body.objRes = {
+        statusCode,
+        response
+      }
+
+      res.format({
+        'application/xml': () => {
+          res.status(statusCode).send(buildXml(response.codResposta))
+        }
       })
+
+      return next()
+    }
   }
 
   public static async store (req: Request, res: Response, next: NextFunction) {
@@ -127,98 +144,120 @@ class ServCelController {
       codResposta: '10'
     }
 
-    const schema = Yup.object().shape({
-      msisdn: Yup.string().required('MSISDN é obrigatório'),
-      valor: Yup.string().required('Valor é obrigatório'),
-      origem: Yup.string().required('Origem é obrigatório'),
-      dataOrigem: Yup.string().required('Data de origem é obrigatório'),
-      dataServCel: Yup.string().required('Data da transação é obrigatório'),
-      nsuOrigem: Yup.string().required('NSU de origem é obrigatório'),
-      nsuServCel: Yup.string().required('NSU da transação é obrigatório'),
-      produto: Yup.string().required('Produto é obrigatório'),
-      chave: Yup.string().required('Chave é obrigatório'),
-      operadora: Yup.string().required('Operadora é obrigatório')
-    })
+    try {
+      const schema = Yup.object().shape({
+        msisdn: Yup.string().required('MSISDN é obrigatório'),
+        valor: Yup.string().required('Valor é obrigatório'),
+        origem: Yup.string().required('Origem é obrigatório'),
+        dataOrigem: Yup.string().required('Data de origem é obrigatório'),
+        dataServCel: Yup.string().required('Data da transação é obrigatório'),
+        nsuOrigem: Yup.string().required('NSU de origem é obrigatório'),
+        nsuServCel: Yup.string().required('NSU da transação é obrigatório'),
+        produto: Yup.string().required('Produto é obrigatório'),
+        chave: Yup.string().required('Chave é obrigatório'),
+        operadora: Yup.string().required('Operadora é obrigatório')
+      })
 
-    schema.validate(req.body.xml)
-      .then(async (body: any) => {
-        const servCelResponse: IServCelInsResponse = await ServCelModel.procInsServCel('Recarga', 200, '', null, body)
+      schema.validate(req.body.xml)
+        .then(async (body: any) => {
+          const servCelResponse: IServCelInsResponse = await ServCelModel.procInsServCel('Recarga', 200, '', null, body)
 
-        const checkPlintron = await ServCelModel.procCheckPlintron()
+          const checkPlintron = await ServCelModel.procCheckPlintron()
 
-        if (body.msisdn.length === 11) {
-          if (checkPlintron) {
-            const responseGetAuth: IGetAuthResponse = await ServCelModel.procGetAuth(body.msisdn, body.operadora)
+          if (body.msisdn.length === 11) {
+            if (await ServCelModel.procNuage(body.msisdn)) {
+              if (checkPlintron) {
+                const responseGetAuth: IGetAuthResponse = await ServCelModel.procGetAuth(body.msisdn, body.operadora)
 
-            const dateNow = new Date()
-            const transactionID: string = ('SC' + servCelResponse.idServCel + dateFormat(dateNow, 'yyyymmdhhMMss')).padStart(19, '0')
+                const dateNow = new Date()
+                const transactionID: string = ('SC' + servCelResponse.idServCel + dateFormat(dateNow, 'yyyymmdhhMMss')).padStart(19, '0')
 
-            const requestTopUp: ITopUpRequest = {
-              productID: responseGetAuth.plintronProductId,
-              MSISDN: '55' + body.msisdn,
-              amount: body.valor.replace(',', ''),
-              transactionID,
-              terminalID: '02SV',
-              currency: 'BRL',
-              cardID: 'Card',
-              retailerID: 'MGM',
-              twoPhaseCommit: '1'
-            }
+                const requestTopUp: ITopUpRequest = {
+                  productID: responseGetAuth.plintronProductId,
+                  MSISDN: '55' + body.msisdn,
+                  amount: body.valor.replace(',', ''),
+                  transactionID,
+                  terminalID: '02SV',
+                  currency: 'BRL',
+                  cardID: 'Card',
+                  retailerID: 'MGM',
+                  twoPhaseCommit: '1'
+                }
 
-            const responseTopUp: ITopUpResponse = await ServCelModel.procTopUp(responseGetAuth.authentication, requestTopUp)
+                const responseTopUp: ITopUpResponse = await ServCelModel.procTopUp(responseGetAuth.authentication, requestTopUp)
 
-            if (responseTopUp.code === '00') {
-              response.codResposta = '00'
+                if (responseTopUp.code === '00') {
+                  response.codResposta = '00'
+                } else {
+                  response.codResposta = '10'
+                }
+              } else {
+                if (servCelResponse.code === '01') {
+                  response.codResposta = servCelResponse.code
+                } else {
+                  const responseApi: IServCelResponse = await ServCelModel.procGetCodResposta(body.msisdn, 'Recarga')
+
+                  if (responseApi) {
+                    response.codResposta = responseApi.codResposta
+                  }
+                }
+              }
             } else {
-              response.codResposta = '10'
+              response.codResposta = '12'
             }
           } else {
-            if (servCelResponse.code === '01') {
-              response.codResposta = servCelResponse.code
-            } else {
-              const responseApi: IServCelResponse = await ServCelModel.procGetCodResposta(body.msisdn, 'Recarga')
+            response.codResposta = '12'
+          }
 
-              if (responseApi) {
-                response.codResposta = responseApi.codResposta
-              }
+          req.body.objRes = {
+            statusCode,
+            response
+          }
+
+          res.format({
+            'application/xml': () => {
+              res.status(statusCode).send(buildXml(response.codResposta))
             }
-          }
-        } else {
-          response.codResposta = '12'
-        }
+          })
 
-        req.body.objRes = {
-          statusCode,
-          response
-        }
+          await ServCelModel.procInsServCel('Recarga', 210, response.codResposta, checkPlintron, body)
 
-        res.format({
-          'application/xml': () => {
-            res.status(statusCode).send(buildXml(response.codResposta))
-          }
+          return next()
         })
+        .catch((err: any) => {
+          statusCode = 400
+          console.log(err)
 
-        await ServCelModel.procInsServCel('Recarga', 210, response.codResposta, checkPlintron, body)
-
-        return next()
-      })
-      .catch((err: any) => {
-        statusCode = 400
-        console.log(err)
-
-        req.body.objRes = {
-          statusCode,
-          response
-        }
-
-        res.format({
-          'application/xml': () => {
-            res.status(statusCode).send(buildXml(response.codResposta))
+          req.body.objRes = {
+            statusCode,
+            response
           }
-        })
 
-        return next()
+          res.format({
+            'application/xml': () => {
+              res.status(statusCode).send(buildXml(response.codResposta))
+            }
+          })
+
+          return next()
+        })
+    } catch (err) {
+      statusCode = 400
+      console.log(err)
+
+      req.body.objRes = {
+        statusCode,
+        response
+      }
+
+      res.format({
+        'application/xml': () => {
+          res.status(statusCode).send(buildXml(response.codResposta))
+        }
       })
+
+      return next()
+    }
   }
 }
 
