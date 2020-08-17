@@ -5,7 +5,7 @@ import * as Yup from 'yup'
 
 import ServCelModel from '../models/ServCel'
 
-import { IServCelResponse, IServCelInsResponse, ITopUpRequest, ITopUpResponse, IGetAuthResponse } from '../interfaces/ServCel'
+import { IServCelResponse, IServCelInsResponse, ITopUpRequest, ITopUpResponse, IGetAuthResponse, IRecargaRequest } from '../interfaces/ServCel'
 
 const buildXml = (value: string): string => {
   const builder = new xml.Builder({
@@ -185,9 +185,20 @@ class ServCelController {
                 }
 
                 const responseTopUp: ITopUpResponse = await ServCelModel.procTopUp(responseGetAuth.authentication, requestTopUp)
-
+                console.log('TOPUP: ', responseTopUp)
                 if (responseTopUp.code === '00') {
                   response.codResposta = '00'
+
+                  // Recarga Nuage ********************************************
+                  const requestRecarga: IRecargaRequest = {
+                    msisdn: '55' + body.msisdn,
+                    valor: body.valor.replace(',', ''),
+                    dtExecucao: dateFormat(new Date(), 'yyyy-mm-dd HH:MM:ss'),
+                    origem: 'ServCel',
+                    nsu: responseTopUp.transactionID
+                  }
+
+                  await ServCelModel.procRecargaNuage(requestRecarga)
                 } else {
                   response.codResposta = '10'
                 }

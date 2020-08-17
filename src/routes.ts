@@ -11,7 +11,7 @@ const routes = Router()
 
 const uri = process.env.APP_URI
 
-routes.all('*', logsStart)
+// routes.all('*', logsStart)
 
 routes.all('*', headerMiddleware)
 
@@ -23,6 +23,6 @@ routes.route(uri + '/consultaTelefone')
 routes.route(uri + '/recargaTelefone')
   .post(ServCelController.store)
 
-routes.all('*', logsEnd)
+// routes.all('*', logsEnd)
 
 export default routes

@@ -228,7 +228,7 @@ var ServCelController = /** @class */ (function () {
                     });
                     schema.validate(req.body.xml)
                         .then(function (body) { return __awaiter(_this, void 0, void 0, function () {
-                        var servCelResponse, checkPlintron, responseGetAuth, dateNow, transactionID, requestTopUp, responseTopUp, responseApi;
+                        var servCelResponse, checkPlintron, responseGetAuth, dateNow, transactionID, requestTopUp, responseTopUp, requestRecarga, responseApi;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
                                 case 0: return [4 /*yield*/, ServCel_1.default.procInsServCel('Recarga', 200, '', null, body)];
@@ -237,11 +237,11 @@ var ServCelController = /** @class */ (function () {
                                     return [4 /*yield*/, ServCel_1.default.procCheckPlintron()];
                                 case 2:
                                     checkPlintron = _a.sent();
-                                    if (!(body.msisdn.length === 11)) return [3 /*break*/, 12];
+                                    if (!(body.msisdn.length === 11)) return [3 /*break*/, 15];
                                     return [4 /*yield*/, ServCel_1.default.procNuage(body.msisdn)];
                                 case 3:
-                                    if (!_a.sent()) return [3 /*break*/, 10];
-                                    if (!checkPlintron) return [3 /*break*/, 6];
+                                    if (!_a.sent()) return [3 /*break*/, 13];
+                                    if (!checkPlintron) return [3 /*break*/, 9];
                                     return [4 /*yield*/, ServCel_1.default.procGetAuth(body.msisdn, body.operadora)];
                                 case 4:
                                     responseGetAuth = _a.sent();
@@ -261,33 +261,44 @@ var ServCelController = /** @class */ (function () {
                                     return [4 /*yield*/, ServCel_1.default.procTopUp(responseGetAuth.authentication, requestTopUp)];
                                 case 5:
                                     responseTopUp = _a.sent();
-                                    if (responseTopUp.code === '00') {
-                                        response.codResposta = '00';
-                                    }
-                                    else {
-                                        response.codResposta = '10';
-                                    }
-                                    return [3 /*break*/, 9];
+                                    console.log('TOPUP: ', responseTopUp);
+                                    if (!(responseTopUp.code === '00')) return [3 /*break*/, 7];
+                                    response.codResposta = '00';
+                                    requestRecarga = {
+                                        msisdn: '55' + body.msisdn,
+                                        valor: body.valor.replace(',', ''),
+                                        dtExecucao: dateformat_1.default(new Date(), 'yyyy-mm-dd HH:MM:ss'),
+                                        origem: 'ServCel',
+                                        nsu: responseTopUp.transactionID
+                                    };
+                                    return [4 /*yield*/, ServCel_1.default.procRecargaNuage(requestRecarga)];
                                 case 6:
-                                    if (!(servCelResponse.code === '01')) return [3 /*break*/, 7];
+                                    _a.sent();
+                                    return [3 /*break*/, 8];
+                                case 7:
+                                    response.codResposta = '10';
+                                    _a.label = 8;
+                                case 8: return [3 /*break*/, 12];
+                                case 9:
+                                    if (!(servCelResponse.code === '01')) return [3 /*break*/, 10];
                                     response.codResposta = servCelResponse.code;
-                                    return [3 /*break*/, 9];
-                                case 7: return [4 /*yield*/, ServCel_1.default.procGetCodResposta(body.msisdn, 'Recarga')];
-                                case 8:
+                                    return [3 /*break*/, 12];
+                                case 10: return [4 /*yield*/, ServCel_1.default.procGetCodResposta(body.msisdn, 'Recarga')];
+                                case 11:
                                     responseApi = _a.sent();
                                     if (responseApi) {
                                         response.codResposta = responseApi.codResposta;
                                     }
-                                    _a.label = 9;
-                                case 9: return [3 /*break*/, 11];
-                                case 10:
-                                    response.codResposta = '12';
-                                    _a.label = 11;
-                                case 11: return [3 /*break*/, 13];
-                                case 12:
-                                    response.codResposta = '12';
-                                    _a.label = 13;
+                                    _a.label = 12;
+                                case 12: return [3 /*break*/, 14];
                                 case 13:
+                                    response.codResposta = '12';
+                                    _a.label = 14;
+                                case 14: return [3 /*break*/, 16];
+                                case 15:
+                                    response.codResposta = '12';
+                                    _a.label = 16;
+                                case 16:
                                     req.body.objRes = {
                                         statusCode: statusCode,
                                         response: response
@@ -298,7 +309,7 @@ var ServCelController = /** @class */ (function () {
                                         }
                                     });
                                     return [4 /*yield*/, ServCel_1.default.procInsServCel('Recarga', 210, response.codResposta, checkPlintron, body)];
-                                case 14:
+                                case 17:
                                     _a.sent();
                                     return [2 /*return*/, next()];
                             }

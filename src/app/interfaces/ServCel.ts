@@ -45,3 +45,11 @@ export interface IGetAuthResponse {
   plintronProductId: string
   ordem: number
 }
+
+export interface IRecargaRequest {
+  msisdn: string
+  valor: string
+  dtExecucao: string
+  origem: string
+  nsu: string
+}

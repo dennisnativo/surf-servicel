@@ -2,7 +2,7 @@ import { QueryTypes } from 'sequelize'
 import request from 'request-promise'
 import sequelize from '../../database'
 
-import { IServCelRequest, ITopUpRequest, ITopUpResponse } from '../interfaces/ServCel'
+import { IServCelRequest, ITopUpRequest, IRecargaRequest } from '../interfaces/ServCel'
 
 class ServCel {
   public static async procInsServCel (metodo: string, phase: number, codResposta: string, plintron: boolean | null, request: IServCelRequest): Promise<any> {
@@ -138,6 +138,28 @@ class ServCel {
       json: true
     }).then((response: any) => {
       return (response.sucesso === 0)
+    }).catch((err) => {
+      console.log(err)
+      return false
+    })
+
+    return response
+  }
+
+  public static async procRecargaNuage (entrada: IRecargaRequest): Promise<any> {
+    const response = request({
+      uri: 'http://192.168.120.25/Nuage/api/v1/recarga',
+      body: {
+        msisdn: entrada.msisdn,
+        valor: entrada.valor,
+        dtExecucao: entrada.dtExecucao,
+        origem: entrada.origem,
+        nsu: entrada.nsu
+      },
+      method: 'POST',
+      json: true
+    }).then((response: any) => {
+      return response
     }).catch((err) => {
       console.log(err)
       return false
