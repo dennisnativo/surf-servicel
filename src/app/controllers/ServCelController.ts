@@ -42,12 +42,16 @@ class ServCelController {
 
       schema.validate(req.body.xml)
         .then(async (body: any) => {
+          console.log({ value: 'INICIO', data: new Date() })
           const servCelResponse: IServCelInsResponse = await ServCelModel.procInsServCel('Consulta', 200, '', null, body)
+          console.log({ value: 'POS PROC 200', data: new Date() })
 
           const checkPlintron = await ServCelModel.procCheckPlintron()
+          console.log({ value: 'POS SELECT CHECKPLINTRON', data: new Date() })
 
           if (body.msisdn.length === 11) {
             if (await ServCelModel.procNuage(body.msisdn)) {
+              console.log({ value: 'POS NUAGE', data: new Date() })
               if (checkPlintron) {
                 const responseGetAuth: IGetAuthResponse = await ServCelModel.procGetAuth(body.msisdn, body.operadora)
 
@@ -66,8 +70,8 @@ class ServCelController {
                   twoPhaseCommit: '0'
                 }
 
-                const responseTopUp: ITopUpResponse = await ServCelModel.procTopUp(responseGetAuth.authentication, requestTopUp)
-
+                const responseTopUp: ITopUpResponse = await ServCelModel.procInsPlintron(responseGetAuth.authentication, requestTopUp)
+                console.log({ responseTopUp })
                 if (responseTopUp.code === '00') {
                   response.codResposta = '00'
                 } else {
@@ -184,7 +188,7 @@ class ServCelController {
                   twoPhaseCommit: '1'
                 }
 
-                const responseTopUp: ITopUpResponse = await ServCelModel.procTopUp(responseGetAuth.authentication, requestTopUp)
+                const responseTopUp: ITopUpResponse = await ServCelModel.procInsPlintron(responseGetAuth.authentication, requestTopUp)
                 console.log('TOPUP: ', responseTopUp)
                 if (responseTopUp.code === '00') {
                   response.codResposta = '00'

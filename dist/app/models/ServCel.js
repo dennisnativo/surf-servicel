@@ -151,7 +151,7 @@ var ServCel = /** @class */ (function () {
                         })];
                     case 1:
                         response = _a.sent();
-                        return [2 /*return*/];
+                        return [2 /*return*/, response];
                 }
             });
         });
@@ -182,7 +182,7 @@ var ServCel = /** @class */ (function () {
             var response;
             return __generator(this, function (_a) {
                 response = request_promise_1.default({
-                    uri: 'http://192.168.120.25/Nuage/api/v1/conta',
+                    uri: 'https://www.pagtel.com.br/Nuage-teste/api/v1/conta',
                     body: {
                         msisdn: '55' + msisdn
                     },
@@ -203,7 +203,7 @@ var ServCel = /** @class */ (function () {
             var response;
             return __generator(this, function (_a) {
                 response = request_promise_1.default({
-                    uri: 'http://192.168.120.25/Nuage/api/v1/recarga',
+                    uri: 'https://www.pagtel.com.br/Nuage-teste/api/v1/recarga',
                     body: {
                         msisdn: entrada.msisdn,
                         valor: entrada.valor,

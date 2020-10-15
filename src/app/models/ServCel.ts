@@ -4,6 +4,8 @@ import sequelize from '../../database'
 
 import { IServCelRequest, ITopUpRequest, IRecargaRequest } from '../interfaces/ServCel'
 
+import NuageModel from './Nuage'
+
 class ServCel {
   public static async procInsServCel (metodo: string, phase: number, codResposta: string, plintron: boolean | null, request: IServCelRequest): Promise<any> {
     const response = await sequelize.query(
@@ -108,6 +110,8 @@ class ServCel {
         console.log(err)
         return null
       })
+
+      return response
   }
 
   public static async procTopUp (auth: string, requestData: ITopUpRequest): Promise<any> {
@@ -130,7 +134,7 @@ class ServCel {
 
   public static async procNuage (msisdn: string): Promise<any> {
     const response = request({
-      uri: 'http://192.168.120.25/Nuage/api/v1/conta',
+      uri: 'https://www.pagtel.com.br/Nuage-teste/api/v1/conta',
       body: {
         msisdn: '55' + msisdn
       },
@@ -148,7 +152,7 @@ class ServCel {
 
   public static async procRecargaNuage (entrada: IRecargaRequest): Promise<any> {
     const response = request({
-      uri: 'http://192.168.120.25/Nuage/api/v1/recarga',
+      uri: 'https://www.pagtel.com.br/Nuage-teste/api/v1/recarga',
       body: {
         msisdn: entrada.msisdn,
         valor: entrada.valor,

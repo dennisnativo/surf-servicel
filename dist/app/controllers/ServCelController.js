@@ -102,16 +102,21 @@ var ServCelController = /** @class */ (function () {
                         var servCelResponse, checkPlintron, responseGetAuth, dateNow, transactionID, requestTopUp, responseTopUp, responseApi;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
-                                case 0: return [4 /*yield*/, ServCel_1.default.procInsServCel('Consulta', 200, '', null, body)];
+                                case 0:
+                                    console.log({ value: 'INICIO', data: new Date() });
+                                    return [4 /*yield*/, ServCel_1.default.procInsServCel('Consulta', 200, '', null, body)];
                                 case 1:
                                     servCelResponse = _a.sent();
+                                    console.log({ value: 'POS PROC 200', data: new Date() });
                                     return [4 /*yield*/, ServCel_1.default.procCheckPlintron()];
                                 case 2:
                                     checkPlintron = _a.sent();
+                                    console.log({ value: 'POS SELECT CHECKPLINTRON', data: new Date() });
                                     if (!(body.msisdn.length === 11)) return [3 /*break*/, 11];
                                     return [4 /*yield*/, ServCel_1.default.procNuage(body.msisdn)];
                                 case 3:
                                     if (!_a.sent()) return [3 /*break*/, 9];
+                                    console.log({ value: 'POS NUAGE', data: new Date() });
                                     if (!checkPlintron) return [3 /*break*/, 6];
                                     return [4 /*yield*/, ServCel_1.default.procGetAuth(body.msisdn, body.operadora)];
                                 case 4:
@@ -129,9 +134,10 @@ var ServCelController = /** @class */ (function () {
                                         retailerID: 'MGM',
                                         twoPhaseCommit: '0'
                                     };
-                                    return [4 /*yield*/, ServCel_1.default.procTopUp(responseGetAuth.authentication, requestTopUp)];
+                                    return [4 /*yield*/, ServCel_1.default.procInsPlintron(responseGetAuth.authentication, requestTopUp)];
                                 case 5:
                                     responseTopUp = _a.sent();
+                                    console.log({ responseTopUp: responseTopUp });
                                     if (responseTopUp.code === '00') {
                                         response.codResposta = '00';
                                     }
@@ -258,7 +264,7 @@ var ServCelController = /** @class */ (function () {
                                         retailerID: 'MGM',
                                         twoPhaseCommit: '1'
                                     };
-                                    return [4 /*yield*/, ServCel_1.default.procTopUp(responseGetAuth.authentication, requestTopUp)];
+                                    return [4 /*yield*/, ServCel_1.default.procInsPlintron(responseGetAuth.authentication, requestTopUp)];
                                 case 5:
                                     responseTopUp = _a.sent();
                                     console.log('TOPUP: ', responseTopUp);
