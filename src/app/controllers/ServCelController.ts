@@ -25,7 +25,7 @@ const buildXml = (value: string): string => {
 }
 
 class ServCelController {
-  public static async index (req: Request, res: Response, next: NextFunction) {
+  public static async index (req: Request, res: Response) {
     let statusCode: number = 200
     const response: IServCelResponse = {
       codResposta: '10'
@@ -91,58 +91,37 @@ class ServCelController {
             response.codResposta = '12'
           }
 
-          req.body.objRes = {
-            statusCode,
-            response
-          }
-
-          res.format({
+          await ServCelModel.procInsServCel('Consulta', 210, response.codResposta, checkPlintron, body)
+          
+          return res.format({
             'application/xml': () => {
               res.status(statusCode).send(buildXml(response.codResposta))
             }
           })
-
-          await ServCelModel.procInsServCel('Consulta', 210, response.codResposta, checkPlintron, body)
-
-          return next()
         })
         .catch((err: any) => {
           statusCode = 400
           console.log(err)
 
-          req.body.objRes = {
-            statusCode,
-            response
-          }
-
-          res.format({
+          return res.format({
             'application/xml': () => {
               res.status(statusCode).send(buildXml(response.codResposta))
             }
           })
-
-          return next()
         })
     } catch (err) {
       statusCode = 400
       console.log(err)
 
-      req.body.objRes = {
-        statusCode,
-        response
-      }
-
-      res.format({
+      return res.format({
         'application/xml': () => {
           res.status(statusCode).send(buildXml(response.codResposta))
         }
       })
-
-      return next()
     }
   }
 
-  public static async store (req: Request, res: Response, next: NextFunction) {
+  public static async store (req: Request, res: Response) {
     let statusCode: number = 200
     const response: IServCelResponse = {
       codResposta: '10'
@@ -160,7 +139,7 @@ class ServCelController {
         produto: Yup.string().required('Produto é obrigatório'),
         chave: Yup.string().required('Chave é obrigatório'),
         operadora: Yup.string().required('Operadora é obrigatório')
-      })
+      })                    
 
       schema.validate(req.body.xml)
         .then(async (body: any) => {
@@ -224,54 +203,33 @@ class ServCelController {
             response.codResposta = '12'
           }
 
-          req.body.objRes = {
-            statusCode,
-            response
-          }
-
-          res.format({
+          await ServCelModel.procInsServCel('Recarga', 210, response.codResposta, checkPlintron, body)
+          
+          return res.format({
             'application/xml': () => {
               res.status(statusCode).send(buildXml(response.codResposta))
             }
           })
-
-          await ServCelModel.procInsServCel('Recarga', 210, response.codResposta, checkPlintron, body)
-
-          return next()
         })
         .catch((err: any) => {
           statusCode = 400
           console.log(err)
 
-          req.body.objRes = {
-            statusCode,
-            response
-          }
-
-          res.format({
+          return res.format({
             'application/xml': () => {
               res.status(statusCode).send(buildXml(response.codResposta))
             }
           })
-
-          return next()
         })
     } catch (err) {
       statusCode = 400
       console.log(err)
 
-      req.body.objRes = {
-        statusCode,
-        response
-      }
-
-      res.format({
+      return res.format({
         'application/xml': () => {
           res.status(statusCode).send(buildXml(response.codResposta))
         }
       })
-
-      return next()
     }
   }
 }
