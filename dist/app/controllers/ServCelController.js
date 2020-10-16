@@ -80,7 +80,7 @@ var buildXml = function (value) {
 var ServCelController = /** @class */ (function () {
     function ServCelController() {
     }
-    ServCelController.index = function (req, res, next) {
+    ServCelController.index = function (req, res) {
         return __awaiter(this, void 0, void 0, function () {
             var statusCode, response, schema;
             var _this = this;
@@ -160,57 +160,41 @@ var ServCelController = /** @class */ (function () {
                                 case 11:
                                     response.codResposta = '12';
                                     _a.label = 12;
-                                case 12:
-                                    req.body.objRes = {
-                                        statusCode: statusCode,
-                                        response: response
-                                    };
-                                    res.format({
-                                        'application/xml': function () {
-                                            res.status(statusCode).send(buildXml(response.codResposta));
-                                        }
-                                    });
-                                    return [4 /*yield*/, ServCel_1.default.procInsServCel('Consulta', 210, response.codResposta, checkPlintron, body)];
+                                case 12: return [4 /*yield*/, ServCel_1.default.procInsServCel('Consulta', 210, response.codResposta, checkPlintron, body)];
                                 case 13:
                                     _a.sent();
-                                    return [2 /*return*/, next()];
+                                    return [2 /*return*/, res.format({
+                                            'application/xml': function () {
+                                                res.status(statusCode).send(buildXml(response.codResposta));
+                                            }
+                                        })];
                             }
                         });
                     }); })
                         .catch(function (err) {
                         statusCode = 400;
                         console.log(err);
-                        req.body.objRes = {
-                            statusCode: statusCode,
-                            response: response
-                        };
-                        res.format({
+                        return res.format({
                             'application/xml': function () {
                                 res.status(statusCode).send(buildXml(response.codResposta));
                             }
                         });
-                        return next();
                     });
                 }
                 catch (err) {
                     statusCode = 400;
                     console.log(err);
-                    req.body.objRes = {
-                        statusCode: statusCode,
-                        response: response
-                    };
-                    res.format({
-                        'application/xml': function () {
-                            res.status(statusCode).send(buildXml(response.codResposta));
-                        }
-                    });
-                    return [2 /*return*/, next()];
+                    return [2 /*return*/, res.format({
+                            'application/xml': function () {
+                                res.status(statusCode).send(buildXml(response.codResposta));
+                            }
+                        })];
                 }
                 return [2 /*return*/];
             });
         });
     };
-    ServCelController.store = function (req, res, next) {
+    ServCelController.store = function (req, res) {
         return __awaiter(this, void 0, void 0, function () {
             var statusCode, response, schema;
             var _this = this;
@@ -304,51 +288,35 @@ var ServCelController = /** @class */ (function () {
                                 case 15:
                                     response.codResposta = '12';
                                     _a.label = 16;
-                                case 16:
-                                    req.body.objRes = {
-                                        statusCode: statusCode,
-                                        response: response
-                                    };
-                                    res.format({
-                                        'application/xml': function () {
-                                            res.status(statusCode).send(buildXml(response.codResposta));
-                                        }
-                                    });
-                                    return [4 /*yield*/, ServCel_1.default.procInsServCel('Recarga', 210, response.codResposta, checkPlintron, body)];
+                                case 16: return [4 /*yield*/, ServCel_1.default.procInsServCel('Recarga', 210, response.codResposta, checkPlintron, body)];
                                 case 17:
                                     _a.sent();
-                                    return [2 /*return*/, next()];
+                                    return [2 /*return*/, res.format({
+                                            'application/xml': function () {
+                                                res.status(statusCode).send(buildXml(response.codResposta));
+                                            }
+                                        })];
                             }
                         });
                     }); })
                         .catch(function (err) {
                         statusCode = 400;
                         console.log(err);
-                        req.body.objRes = {
-                            statusCode: statusCode,
-                            response: response
-                        };
-                        res.format({
+                        return res.format({
                             'application/xml': function () {
                                 res.status(statusCode).send(buildXml(response.codResposta));
                             }
                         });
-                        return next();
                     });
                 }
                 catch (err) {
                     statusCode = 400;
                     console.log(err);
-                    req.body.objRes = {
-                        statusCode: statusCode,
-                        response: response
-                    };
-                    res.format({
-                        'application/xml': function () {
-                            res.status(statusCode).send(buildXml(response.codResposta));
-                        }
-                    });
-                    return [2 /*return*/, next()];
+                    return [2 /*return*/, res.format({
+                            'application/xml': function () {
+                                res.status(statusCode).send(buildXml(response.codResposta));
+                            }
+                        })];
                 }
                 return [2 /*return*/];
             });

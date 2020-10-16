@@ -9,12 +9,10 @@ var xmlToJson_1 = __importDefault(require("./app/middlewares/xmlToJson"));
 var ServCelController_1 = __importDefault(require("./app/controllers/ServCelController"));
 var routes = express_1.Router();
 var uri = process.env.APP_URI;
-// routes.all('*', logsStart)
 routes.all('*', header_1.default);
 routes.all('*', xmlToJson_1.default);
 routes.route(uri + '/consultaTelefone')
     .post(ServCelController_1.default.index);
 routes.route(uri + '/recargaTelefone')
     .post(ServCelController_1.default.store);
-// routes.all('*', logsEnd)
 exports.default = routes;
