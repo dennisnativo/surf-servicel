@@ -229,7 +229,7 @@ var ServCelController = /** @class */ (function () {
                     });
                     schema.validate(req.body.xml)
                         .then(function (body) { return __awaiter(_this, void 0, void 0, function () {
-                        var servCelResponse, checkPlintron, responseGetAuth, dateNow, transactionID, requestTopUp, responseTopUp, requestRecarga, responseNuage, responseApi;
+                        var servCelResponse, checkPlintron, responseGetAuth, dateNow, transactionID, requestTopUp, responseTopUp, requestRecarga, responseNuage, responseApi, responsePro210;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
                                 case 0:
@@ -282,8 +282,7 @@ var ServCelController = /** @class */ (function () {
                                     return [4 /*yield*/, Nuage_1.default.procRecargaNuage(requestRecarga)];
                                 case 6:
                                     responseNuage = _a.sent();
-                                    logs_1.saveControllerLogs('POS PROC 210      ', { body: body, response: responseNuage }, 'servcelRecarga-controller');
-                                    logs_1.saveControllerLogs('FIM               ', body, 'servcelRecarga-controller');
+                                    logs_1.saveControllerLogs('POS RECARGA NUAGE ', { body: body, response: responseNuage }, 'servcelRecarga-controller');
                                     return [3 /*break*/, 8];
                                 case 7:
                                     response.codResposta = '10';
@@ -311,7 +310,9 @@ var ServCelController = /** @class */ (function () {
                                     _a.label = 16;
                                 case 16: return [4 /*yield*/, ServCel_1.default.procInsServCel('Recarga', 210, response.codResposta, checkPlintron, body)];
                                 case 17:
-                                    _a.sent();
+                                    responsePro210 = _a.sent();
+                                    logs_1.saveControllerLogs('POS PROC 210      ', { body: body, response: responsePro210 }, 'servcelRecarga-controller');
+                                    logs_1.saveControllerLogs('FIM               ', body, 'servcelRecarga-controller');
                                     return [2 /*return*/, res.format({
                                             'application/xml': function () {
                                                 res.status(statusCode).send(buildXml(response.codResposta));

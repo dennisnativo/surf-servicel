@@ -208,7 +208,7 @@ class ServCelController {
                 const responseTopUp: ITopUpResponse = await ServCelModel.procInsPlintron(responseGetAuth.authentication, requestTopUp)
                 
                 saveControllerLogs('POSPROCINSPLINTRON', { body, response: responseTopUp }, 'servcelRecarga-controller')
-                
+
                 if (responseTopUp.code === '00') {
                   response.codResposta = '00'
                   
@@ -222,10 +222,9 @@ class ServCelController {
                   }
                   
                   const responseNuage = await NuageModel.procRecargaNuage(requestRecarga)
-                  
-                  saveControllerLogs('POS PROC 210      ', { body, response: responseNuage }, 'servcelRecarga-controller')
 
-                  saveControllerLogs('FIM               ', body, 'servcelRecarga-controller')
+                  saveControllerLogs('POS RECARGA NUAGE ', { body, response: responseNuage }, 'servcelRecarga-controller')
+                
                 } else {
                   response.codResposta = '10'
                 }
@@ -249,7 +248,11 @@ class ServCelController {
             response.codResposta = '12'
           }
 
-          await ServCelModel.procInsServCel('Recarga', 210, response.codResposta, checkPlintron, body)
+          const responsePro210 = await ServCelModel.procInsServCel('Recarga', 210, response.codResposta, checkPlintron, body)
+
+          saveControllerLogs('POS PROC 210      ', { body, response: responsePro210 }, 'servcelRecarga-controller')
+
+          saveControllerLogs('FIM               ', body, 'servcelRecarga-controller')
 
           return res.format({
             'application/xml': () => {
