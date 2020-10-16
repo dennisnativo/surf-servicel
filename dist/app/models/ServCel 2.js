@@ -177,6 +177,52 @@ var ServCel = /** @class */ (function () {
             });
         });
     };
+    ServCel.procNuage = function (msisdn) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response;
+            return __generator(this, function (_a) {
+                response = request_promise_1.default({
+                    uri: 'https://www.pagtel.com.br/Nuage-teste/api/v1/conta',
+                    body: {
+                        msisdn: '55' + msisdn
+                    },
+                    method: 'POST',
+                    json: true
+                }).then(function (response) {
+                    return (response.sucesso === 0);
+                }).catch(function (err) {
+                    console.log(err);
+                    return false;
+                });
+                return [2 /*return*/, response];
+            });
+        });
+    };
+    ServCel.procRecargaNuage = function (entrada) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response;
+            return __generator(this, function (_a) {
+                response = request_promise_1.default({
+                    uri: 'https://www.pagtel.com.br/Nuage-teste/api/v1/recarga',
+                    body: {
+                        msisdn: entrada.msisdn,
+                        valor: entrada.valor,
+                        dtExecucao: entrada.dtExecucao,
+                        origem: entrada.origem,
+                        nsu: entrada.nsu
+                    },
+                    method: 'POST',
+                    json: true
+                }).then(function (response) {
+                    return response;
+                }).catch(function (err) {
+                    console.log(err);
+                    return false;
+                });
+                return [2 /*return*/, response];
+            });
+        });
+    };
     return ServCel;
 }());
 exports.default = ServCel;

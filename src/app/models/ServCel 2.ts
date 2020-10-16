@@ -2,7 +2,9 @@ import { QueryTypes } from 'sequelize'
 import request from 'request-promise'
 import sequelize from '../../database'
 
-import { IServCelRequest, ITopUpRequest } from '../interfaces/ServCel'
+import { IServCelRequest, ITopUpRequest, IRecargaRequest } from '../interfaces/ServCel'
+
+import NuageModel from './Nuage'
 
 class ServCel {
   public static async procInsServCel (metodo: string, phase: number, codResposta: string, plintron: boolean | null, request: IServCelRequest): Promise<any> {
@@ -109,7 +111,7 @@ class ServCel {
         return null
       })
 
-    return response
+      return response
   }
 
   public static async procTopUp (auth: string, requestData: ITopUpRequest): Promise<any> {
@@ -125,6 +127,46 @@ class ServCel {
     }).catch((err) => {
       // console.log(err)
       return err
+    })
+
+    return response
+  }
+
+  public static async procNuage (msisdn: string): Promise<any> {
+    const response = request({
+      uri: 'https://www.pagtel.com.br/Nuage-teste/api/v1/conta',
+      body: {
+        msisdn: '55' + msisdn
+      },
+      method: 'POST',
+      json: true
+    }).then((response: any) => {
+      return (response.sucesso === 0)
+    }).catch((err) => {
+      console.log(err)
+      return false
+    })
+
+    return response
+  }
+
+  public static async procRecargaNuage (entrada: IRecargaRequest): Promise<any> {
+    const response = request({
+      uri: 'https://www.pagtel.com.br/Nuage-teste/api/v1/recarga',
+      body: {
+        msisdn: entrada.msisdn,
+        valor: entrada.valor,
+        dtExecucao: entrada.dtExecucao,
+        origem: entrada.origem,
+        nsu: entrada.nsu
+      },
+      method: 'POST',
+      json: true
+    }).then((response: any) => {
+      return response
+    }).catch((err) => {
+      console.log(err)
+      return false
     })
 
     return response

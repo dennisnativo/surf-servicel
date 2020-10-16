@@ -1,9 +1,10 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response } from 'express'
 import dateFormat from 'dateformat'
 import xml from 'xml2js'
 import * as Yup from 'yup'
 
 import ServCelModel from '../models/ServCel'
+import NuageModel from '../models/Nuage'
 
 import { IServCelResponse, IServCelInsResponse, ITopUpRequest, ITopUpResponse, IGetAuthResponse, IRecargaRequest } from '../interfaces/ServCel'
 
@@ -50,7 +51,7 @@ class ServCelController {
           console.log({ value: 'POS SELECT CHECKPLINTRON', data: new Date() })
 
           if (body.msisdn.length === 11) {
-            if (await ServCelModel.procNuage(body.msisdn)) {
+            if (await NuageModel.procNuage(body.msisdn)) {
               console.log({ value: 'POS NUAGE', data: new Date() })
               if (checkPlintron) {
                 const responseGetAuth: IGetAuthResponse = await ServCelModel.procGetAuth(body.msisdn, body.operadora)
@@ -92,7 +93,7 @@ class ServCelController {
           }
 
           await ServCelModel.procInsServCel('Consulta', 210, response.codResposta, checkPlintron, body)
-          
+
           return res.format({
             'application/xml': () => {
               res.status(statusCode).send(buildXml(response.codResposta))
@@ -139,7 +140,7 @@ class ServCelController {
         produto: Yup.string().required('Produto é obrigatório'),
         chave: Yup.string().required('Chave é obrigatório'),
         operadora: Yup.string().required('Operadora é obrigatório')
-      })                    
+      })
 
       schema.validate(req.body.xml)
         .then(async (body: any) => {
@@ -148,7 +149,7 @@ class ServCelController {
           const checkPlintron = await ServCelModel.procCheckPlintron()
 
           if (body.msisdn.length === 11) {
-            if (await ServCelModel.procNuage(body.msisdn)) {
+            if (await NuageModel.procNuage(body.msisdn)) {
               if (checkPlintron) {
                 const responseGetAuth: IGetAuthResponse = await ServCelModel.procGetAuth(body.msisdn, body.operadora)
 
@@ -181,7 +182,7 @@ class ServCelController {
                     nsu: responseTopUp.transactionID
                   }
 
-                  await ServCelModel.procRecargaNuage(requestRecarga)
+                  await NuageModel.procRecargaNuage(requestRecarga)
                 } else {
                   response.codResposta = '10'
                 }
@@ -204,7 +205,7 @@ class ServCelController {
           }
 
           await ServCelModel.procInsServCel('Recarga', 210, response.codResposta, checkPlintron, body)
-          
+
           return res.format({
             'application/xml': () => {
               res.status(statusCode).send(buildXml(response.codResposta))
