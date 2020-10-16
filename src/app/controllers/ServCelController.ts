@@ -6,6 +6,8 @@ import * as Yup from 'yup'
 import ServCelModel from '../models/ServCel'
 import NuageModel from '../models/Nuage'
 
+import { saveControllerLogs } from '../helpers/logs'
+
 import { IServCelResponse, IServCelInsResponse, ITopUpRequest, ITopUpResponse, IGetAuthResponse, IRecargaRequest } from '../interfaces/ServCel'
 
 const buildXml = (value: string): string => {
@@ -27,6 +29,8 @@ const buildXml = (value: string): string => {
 
 class ServCelController {
   public static async index (req: Request, res: Response) {
+    saveControllerLogs('INICIO            ', req.body, 'servcelConsulta-controller')
+
     let statusCode: number = 200
     const response: IServCelResponse = {
       codResposta: '10'
@@ -43,18 +47,26 @@ class ServCelController {
 
       schema.validate(req.body.xml)
         .then(async (body: any) => {
-          console.log({ value: 'INICIO', data: new Date() })
+          saveControllerLogs('POS VALID PARAMS  ', body, 'servcelConsulta-controller')
+
           const servCelResponse: IServCelInsResponse = await ServCelModel.procInsServCel('Consulta', 200, '', null, body)
-          console.log({ value: 'POS PROC 200', data: new Date() })
-
+          
+          saveControllerLogs('POS PROC 200      ', { body, response: servCelResponse }, 'servcelConsulta-controller')
+          
           const checkPlintron = await ServCelModel.procCheckPlintron()
-          console.log({ value: 'POS SELECT CHECKPLINTRON', data: new Date() })
-
+          
+          saveControllerLogs('POS SELECT CHECK  ', { body, response: checkPlintron}, 'servcelConsulta-controller')
+          
           if (body.msisdn.length === 11) {
-            if (await NuageModel.procNuage(body.msisdn)) {
-              console.log({ value: 'POS NUAGE', data: new Date() })
+            saveControllerLogs('POS VALID MSISDN  ', body, 'servcelConsulta-controller')
+           
+            if (await NuageModel.procContaNuage(body.msisdn)) {
+              saveControllerLogs('POS CONTA NUAGE   ', body, 'servcelConsulta-controller')
+
               if (checkPlintron) {
                 const responseGetAuth: IGetAuthResponse = await ServCelModel.procGetAuth(body.msisdn, body.operadora)
+
+                saveControllerLogs('POS PROC GETAUTH  ', { body, response: responseGetAuth }, 'servcelConsulta-controller')
 
                 const dateNow = new Date()
                 const transactionID: string = ('SC' + servCelResponse.idServCel + dateFormat(dateNow, 'yyyymmdhhMMss')).padStart(19, '0')
@@ -72,7 +84,9 @@ class ServCelController {
                 }
 
                 const responseTopUp: ITopUpResponse = await ServCelModel.procInsPlintron(responseGetAuth.authentication, requestTopUp)
-                console.log({ responseTopUp })
+                
+                saveControllerLogs('POSPROCINSPLINTRON', { body, response: responseTopUp }, 'servcelConsulta-controller')
+                
                 if (responseTopUp.code === '00') {
                   response.codResposta = '00'
                 } else {
@@ -80,6 +94,8 @@ class ServCelController {
                 }
               } else {
                 const responseApi: IServCelResponse = await ServCelModel.procGetCodResposta(body.msisdn, 'Consulta')
+
+                saveControllerLogs('POSPROCCODRESPOSTA', { body, response: responseApi }, 'servcelConsulta-controller')
 
                 if (responseApi) {
                   response.codResposta = responseApi.codResposta
@@ -92,7 +108,11 @@ class ServCelController {
             response.codResposta = '12'
           }
 
-          await ServCelModel.procInsServCel('Consulta', 210, response.codResposta, checkPlintron, body)
+          const response210 = await ServCelModel.procInsServCel('Consulta', 210, response.codResposta, checkPlintron, body)
+
+          saveControllerLogs('POS PROC 210      ', { body, response: response210 }, 'servcelConsulta-controller')
+          
+          saveControllerLogs('FIM               ', body, 'servcelConsulta-controller')
 
           return res.format({
             'application/xml': () => {
@@ -101,6 +121,8 @@ class ServCelController {
           })
         })
         .catch((err: any) => {
+          saveControllerLogs('ERROR            ', { body: req.body, error: err.toString() }, 'servcelConsulta-controller')
+
           statusCode = 400
           console.log(err)
 
@@ -111,6 +133,8 @@ class ServCelController {
           })
         })
     } catch (err) {
+      saveControllerLogs('ERROR            ', { body: req.body, error: err.toString() }, 'servcelConsulta-controller')
+
       statusCode = 400
       console.log(err)
 
@@ -123,6 +147,8 @@ class ServCelController {
   }
 
   public static async store (req: Request, res: Response) {
+    saveControllerLogs('INICIO            ', req.body, 'servcelRecarga-controller')
+
     let statusCode: number = 200
     const response: IServCelResponse = {
       codResposta: '10'
@@ -144,14 +170,25 @@ class ServCelController {
 
       schema.validate(req.body.xml)
         .then(async (body: any) => {
+          saveControllerLogs('POS VALID PARAMS  ', body, 'servcelRecarga-controller')
+          
           const servCelResponse: IServCelInsResponse = await ServCelModel.procInsServCel('Recarga', 200, '', null, body)
-
+          
+          saveControllerLogs('POS PROC 200      ', { body, response: servCelResponse}, 'servcelRecarga-controller')
+          
           const checkPlintron = await ServCelModel.procCheckPlintron()
-
+          
+          saveControllerLogs('POS SELECT CHECK  ', { body, response: checkPlintron}, 'servcelRecarga-controller')
+          
           if (body.msisdn.length === 11) {
-            if (await NuageModel.procNuage(body.msisdn)) {
+            saveControllerLogs('POS VALID MSISDN  ', body, 'servcelRecarga-controller')
+            
+            if (await NuageModel.procContaNuage(body.msisdn)) {
+              saveControllerLogs('POS CONTA NUAGE   ', body, 'servcelRecarga-controller')
+              
               if (checkPlintron) {
                 const responseGetAuth: IGetAuthResponse = await ServCelModel.procGetAuth(body.msisdn, body.operadora)
+                saveControllerLogs('POS PROC GETAUTH  ', { body, response: responseGetAuth }, 'servcelRecarga-controller')
 
                 const dateNow = new Date()
                 const transactionID: string = ('SC' + servCelResponse.idServCel + dateFormat(dateNow, 'yyyymmdhhMMss')).padStart(19, '0')
@@ -169,10 +206,12 @@ class ServCelController {
                 }
 
                 const responseTopUp: ITopUpResponse = await ServCelModel.procInsPlintron(responseGetAuth.authentication, requestTopUp)
-                console.log('TOPUP: ', responseTopUp)
+                
+                saveControllerLogs('POSPROCINSPLINTRON', { body, response: responseTopUp }, 'servcelRecarga-controller')
+                
                 if (responseTopUp.code === '00') {
                   response.codResposta = '00'
-
+                  
                   // Recarga Nuage ********************************************
                   const requestRecarga: IRecargaRequest = {
                     msisdn: '55' + body.msisdn,
@@ -181,8 +220,12 @@ class ServCelController {
                     origem: 'ServCel',
                     nsu: responseTopUp.transactionID
                   }
+                  
+                  const responseNuage = await NuageModel.procRecargaNuage(requestRecarga)
+                  
+                  saveControllerLogs('POS PROC 210      ', { body, response: responseNuage }, 'servcelRecarga-controller')
 
-                  await NuageModel.procRecargaNuage(requestRecarga)
+                  saveControllerLogs('FIM               ', body, 'servcelRecarga-controller')
                 } else {
                   response.codResposta = '10'
                 }
@@ -191,6 +234,8 @@ class ServCelController {
                   response.codResposta = servCelResponse.code
                 } else {
                   const responseApi: IServCelResponse = await ServCelModel.procGetCodResposta(body.msisdn, 'Recarga')
+
+                  saveControllerLogs('POSPROCCODRESPOSTA', { body, response: responseApi }, 'servcelRecarga-controller')
 
                   if (responseApi) {
                     response.codResposta = responseApi.codResposta
@@ -213,6 +258,8 @@ class ServCelController {
           })
         })
         .catch((err: any) => {
+          saveControllerLogs('ERROR            ', { body: req.body, error: err.toString() }, 'servcelRecarga-controller')
+
           statusCode = 400
           console.log(err)
 
@@ -223,6 +270,8 @@ class ServCelController {
           })
         })
     } catch (err) {
+      saveControllerLogs('ERROR            ', { body: req.body, error: err.toString() }, 'servcelRecarga-controller')
+
       statusCode = 400
       console.log(err)
 

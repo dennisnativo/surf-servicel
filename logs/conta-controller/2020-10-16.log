@@ -1,0 +1,16 @@
+2020-10-16 00:48:17.710 - INICIO             | Request: {"msisdn":"5511920066677"}
+2020-10-16 00:48:17.766 - PROC 200 RESPONSE  | Request: {"body":{"msisdn":"5511920066677"},"proc200Response":[[{"status":"00"}],[{"status":"00"}]]}
+2020-10-16 00:48:17.766 - PRE REQUEST TOKEN  | Request: {"body":{"msisdn":"5511920066677"},"rastreio":"31d2d0f8-c8fe-4605-887a-fae5542654fb"}
+2020-10-16 00:48:18.606 - PEGOU TOKEN        | Request: {"body":{"msisdn":"5511920066677"},"token":"789cfcc6ff29db43a3c8cb2ed640212664eb59bbfd717045c7f4b55911a2d637"}
+2020-10-16 00:48:18.606 - PRE REQUEST NUAGE  | Request: {"body":{"msisdn":"5511920066677"},"rastreio":"d024b54d-8d27-4892-babf-5a4ec295acd2"}
+2020-10-16 00:48:19.216 - POS-REQUEST-NUAGE  | Request: {"body":{"msisdn":"5511920066677"},"response":{"sucesso":0,"transacao":"ed6dbf2357c3aaa0d5","resultado":{"msisdn":5511920066677,"iccid":"8955170000004413580","imsi":724170000441358,"coPlano":37,"dtPlanoExpira":"21-09-2028 00:00:00","dtUltimaRecarga":"15-10-2020 23:49:21","dtAtivacao":"16-07-2018 00:00:00","nuPlano":"6002","noPlano":"ALO 20","documento":"01433178656","status":"ACTIVE","accountId":23864528,"mvno":"CORREIOS","submvno":"NENHUMA","tipoDocumento":"CPF"}}}
+2020-10-16 00:48:19.610 - PROC 210 RESPONSE  | Request: {"body":{"msisdn":"5511920066677"},"proc210Response":[[{"status":"00"}],[{"status":"00"}]]}
+2020-10-16 00:48:19.610 - FINAL              | Request: {"msisdn":"5511920066677"}
+2020-10-16 00:48:38.646 - INICIO             | Request: {"msisdn":"5511920066677"}
+2020-10-16 00:48:38.669 - PROC 200 RESPONSE  | Request: {"body":{"msisdn":"5511920066677"},"proc200Response":[[{"status":"00"}],[{"status":"00"}]]}
+2020-10-16 00:48:38.669 - PRE REQUEST TOKEN  | Request: {"body":{"msisdn":"5511920066677"},"rastreio":"d6120503-9a96-4050-83bd-ae8aba382bdd"}
+2020-10-16 00:48:39.167 - PEGOU TOKEN        | Request: {"body":{"msisdn":"5511920066677"},"token":"b9e27d2b8eb8b4949150c9d83664aac59f93510cf1e52f2f69bb5fe67bac710f"}
+2020-10-16 00:48:39.167 - PRE REQUEST NUAGE  | Request: {"body":{"msisdn":"5511920066677"},"rastreio":"4d80967e-a5fc-4e9c-b362-cf85944d004a"}
+2020-10-16 00:48:39.654 - POS-REQUEST-NUAGE  | Request: {"body":{"msisdn":"5511920066677"},"response":{"sucesso":0,"transacao":"6ad33f4a2d6349a3fd","resultado":{"msisdn":5511920066677,"iccid":"8955170000004413580","imsi":724170000441358,"coPlano":37,"dtPlanoExpira":"21-09-2028 00:00:00","dtUltimaRecarga":"15-10-2020 23:49:21","dtAtivacao":"16-07-2018 00:00:00","nuPlano":"6002","noPlano":"ALO 20","documento":"01433178656","status":"ACTIVE","accountId":23864528,"mvno":"CORREIOS","submvno":"NENHUMA","tipoDocumento":"CPF"}}}
+2020-10-16 00:48:39.678 - PROC 210 RESPONSE  | Request: {"body":{"msisdn":"5511920066677"},"proc210Response":[[{"status":"00"}],[{"status":"00"}]]}
+2020-10-16 00:48:39.678 - FINAL              | Request: {"msisdn":"5511920066677"}

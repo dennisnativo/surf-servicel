@@ -63,6 +63,7 @@ var xml2js_1 = __importDefault(require("xml2js"));
 var Yup = __importStar(require("yup"));
 var ServCel_1 = __importDefault(require("../models/ServCel"));
 var Nuage_1 = __importDefault(require("../models/Nuage"));
+var logs_1 = require("../helpers/logs");
 var buildXml = function (value) {
     var builder = new xml2js_1.default.Builder({
         renderOpts: { pretty: false }
@@ -86,6 +87,7 @@ var ServCelController = /** @class */ (function () {
             var statusCode, response, schema;
             var _this = this;
             return __generator(this, function (_a) {
+                logs_1.saveControllerLogs('INICIO            ', req.body, 'servcelConsulta-controller');
                 statusCode = 200;
                 response = {
                     codResposta: '10'
@@ -100,28 +102,30 @@ var ServCelController = /** @class */ (function () {
                     });
                     schema.validate(req.body.xml)
                         .then(function (body) { return __awaiter(_this, void 0, void 0, function () {
-                        var servCelResponse, checkPlintron, responseGetAuth, dateNow, transactionID, requestTopUp, responseTopUp, responseApi;
+                        var servCelResponse, checkPlintron, responseGetAuth, dateNow, transactionID, requestTopUp, responseTopUp, responseApi, response210;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
                                 case 0:
-                                    console.log({ value: 'INICIO', data: new Date() });
+                                    logs_1.saveControllerLogs('POS VALID PARAMS  ', body, 'servcelConsulta-controller');
                                     return [4 /*yield*/, ServCel_1.default.procInsServCel('Consulta', 200, '', null, body)];
                                 case 1:
                                     servCelResponse = _a.sent();
-                                    console.log({ value: 'POS PROC 200', data: new Date() });
+                                    logs_1.saveControllerLogs('POS PROC 200      ', { body: body, response: servCelResponse }, 'servcelConsulta-controller');
                                     return [4 /*yield*/, ServCel_1.default.procCheckPlintron()];
                                 case 2:
                                     checkPlintron = _a.sent();
-                                    console.log({ value: 'POS SELECT CHECKPLINTRON', data: new Date() });
+                                    logs_1.saveControllerLogs('POS SELECT CHECK  ', { body: body, response: checkPlintron }, 'servcelConsulta-controller');
                                     if (!(body.msisdn.length === 11)) return [3 /*break*/, 11];
-                                    return [4 /*yield*/, Nuage_1.default.procNuage(body.msisdn)];
+                                    logs_1.saveControllerLogs('POS VALID MSISDN  ', body, 'servcelConsulta-controller');
+                                    return [4 /*yield*/, Nuage_1.default.procContaNuage(body.msisdn)];
                                 case 3:
                                     if (!_a.sent()) return [3 /*break*/, 9];
-                                    console.log({ value: 'POS NUAGE', data: new Date() });
+                                    logs_1.saveControllerLogs('POS CONTA NUAGE   ', body, 'servcelConsulta-controller');
                                     if (!checkPlintron) return [3 /*break*/, 6];
                                     return [4 /*yield*/, ServCel_1.default.procGetAuth(body.msisdn, body.operadora)];
                                 case 4:
                                     responseGetAuth = _a.sent();
+                                    logs_1.saveControllerLogs('POS PROC GETAUTH  ', { body: body, response: responseGetAuth }, 'servcelConsulta-controller');
                                     dateNow = new Date();
                                     transactionID = ('SC' + servCelResponse.idServCel + dateformat_1.default(dateNow, 'yyyymmdhhMMss')).padStart(19, '0');
                                     requestTopUp = {
@@ -138,7 +142,7 @@ var ServCelController = /** @class */ (function () {
                                     return [4 /*yield*/, ServCel_1.default.procInsPlintron(responseGetAuth.authentication, requestTopUp)];
                                 case 5:
                                     responseTopUp = _a.sent();
-                                    console.log({ responseTopUp: responseTopUp });
+                                    logs_1.saveControllerLogs('POSPROCINSPLINTRON', { body: body, response: responseTopUp }, 'servcelConsulta-controller');
                                     if (responseTopUp.code === '00') {
                                         response.codResposta = '00';
                                     }
@@ -149,6 +153,7 @@ var ServCelController = /** @class */ (function () {
                                 case 6: return [4 /*yield*/, ServCel_1.default.procGetCodResposta(body.msisdn, 'Consulta')];
                                 case 7:
                                     responseApi = _a.sent();
+                                    logs_1.saveControllerLogs('POSPROCCODRESPOSTA', { body: body, response: responseApi }, 'servcelConsulta-controller');
                                     if (responseApi) {
                                         response.codResposta = responseApi.codResposta;
                                     }
@@ -163,7 +168,9 @@ var ServCelController = /** @class */ (function () {
                                     _a.label = 12;
                                 case 12: return [4 /*yield*/, ServCel_1.default.procInsServCel('Consulta', 210, response.codResposta, checkPlintron, body)];
                                 case 13:
-                                    _a.sent();
+                                    response210 = _a.sent();
+                                    logs_1.saveControllerLogs('POS PROC 210      ', { body: body, response: response210 }, 'servcelConsulta-controller');
+                                    logs_1.saveControllerLogs('FIM               ', body, 'servcelConsulta-controller');
                                     return [2 /*return*/, res.format({
                                             'application/xml': function () {
                                                 res.status(statusCode).send(buildXml(response.codResposta));
@@ -173,6 +180,7 @@ var ServCelController = /** @class */ (function () {
                         });
                     }); })
                         .catch(function (err) {
+                        logs_1.saveControllerLogs('ERROR            ', { body: req.body, error: err.toString() }, 'servcelConsulta-controller');
                         statusCode = 400;
                         console.log(err);
                         return res.format({
@@ -183,6 +191,7 @@ var ServCelController = /** @class */ (function () {
                     });
                 }
                 catch (err) {
+                    logs_1.saveControllerLogs('ERROR            ', { body: req.body, error: err.toString() }, 'servcelConsulta-controller');
                     statusCode = 400;
                     console.log(err);
                     return [2 /*return*/, res.format({
@@ -200,6 +209,7 @@ var ServCelController = /** @class */ (function () {
             var statusCode, response, schema;
             var _this = this;
             return __generator(this, function (_a) {
+                logs_1.saveControllerLogs('INICIO            ', req.body, 'servcelRecarga-controller');
                 statusCode = 200;
                 response = {
                     codResposta: '10'
@@ -219,23 +229,30 @@ var ServCelController = /** @class */ (function () {
                     });
                     schema.validate(req.body.xml)
                         .then(function (body) { return __awaiter(_this, void 0, void 0, function () {
-                        var servCelResponse, checkPlintron, responseGetAuth, dateNow, transactionID, requestTopUp, responseTopUp, requestRecarga, responseApi;
+                        var servCelResponse, checkPlintron, responseGetAuth, dateNow, transactionID, requestTopUp, responseTopUp, requestRecarga, responseNuage, responseApi;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
-                                case 0: return [4 /*yield*/, ServCel_1.default.procInsServCel('Recarga', 200, '', null, body)];
+                                case 0:
+                                    logs_1.saveControllerLogs('POS VALID PARAMS  ', body, 'servcelRecarga-controller');
+                                    return [4 /*yield*/, ServCel_1.default.procInsServCel('Recarga', 200, '', null, body)];
                                 case 1:
                                     servCelResponse = _a.sent();
+                                    logs_1.saveControllerLogs('POS PROC 200      ', { body: body, response: servCelResponse }, 'servcelRecarga-controller');
                                     return [4 /*yield*/, ServCel_1.default.procCheckPlintron()];
                                 case 2:
                                     checkPlintron = _a.sent();
+                                    logs_1.saveControllerLogs('POS SELECT CHECK  ', { body: body, response: checkPlintron }, 'servcelRecarga-controller');
                                     if (!(body.msisdn.length === 11)) return [3 /*break*/, 15];
-                                    return [4 /*yield*/, Nuage_1.default.procNuage(body.msisdn)];
+                                    logs_1.saveControllerLogs('POS VALID MSISDN  ', body, 'servcelRecarga-controller');
+                                    return [4 /*yield*/, Nuage_1.default.procContaNuage(body.msisdn)];
                                 case 3:
                                     if (!_a.sent()) return [3 /*break*/, 13];
+                                    logs_1.saveControllerLogs('POS CONTA NUAGE   ', body, 'servcelRecarga-controller');
                                     if (!checkPlintron) return [3 /*break*/, 9];
                                     return [4 /*yield*/, ServCel_1.default.procGetAuth(body.msisdn, body.operadora)];
                                 case 4:
                                     responseGetAuth = _a.sent();
+                                    logs_1.saveControllerLogs('POS PROC GETAUTH  ', { body: body, response: responseGetAuth }, 'servcelRecarga-controller');
                                     dateNow = new Date();
                                     transactionID = ('SC' + servCelResponse.idServCel + dateformat_1.default(dateNow, 'yyyymmdhhMMss')).padStart(19, '0');
                                     requestTopUp = {
@@ -252,7 +269,7 @@ var ServCelController = /** @class */ (function () {
                                     return [4 /*yield*/, ServCel_1.default.procInsPlintron(responseGetAuth.authentication, requestTopUp)];
                                 case 5:
                                     responseTopUp = _a.sent();
-                                    console.log('TOPUP: ', responseTopUp);
+                                    logs_1.saveControllerLogs('POSPROCINSPLINTRON', { body: body, response: responseTopUp }, 'servcelRecarga-controller');
                                     if (!(responseTopUp.code === '00')) return [3 /*break*/, 7];
                                     response.codResposta = '00';
                                     requestRecarga = {
@@ -264,7 +281,9 @@ var ServCelController = /** @class */ (function () {
                                     };
                                     return [4 /*yield*/, Nuage_1.default.procRecargaNuage(requestRecarga)];
                                 case 6:
-                                    _a.sent();
+                                    responseNuage = _a.sent();
+                                    logs_1.saveControllerLogs('POS PROC 210      ', { body: body, response: responseNuage }, 'servcelRecarga-controller');
+                                    logs_1.saveControllerLogs('FIM               ', body, 'servcelRecarga-controller');
                                     return [3 /*break*/, 8];
                                 case 7:
                                     response.codResposta = '10';
@@ -277,6 +296,7 @@ var ServCelController = /** @class */ (function () {
                                 case 10: return [4 /*yield*/, ServCel_1.default.procGetCodResposta(body.msisdn, 'Recarga')];
                                 case 11:
                                     responseApi = _a.sent();
+                                    logs_1.saveControllerLogs('POSPROCCODRESPOSTA', { body: body, response: responseApi }, 'servcelRecarga-controller');
                                     if (responseApi) {
                                         response.codResposta = responseApi.codResposta;
                                     }
@@ -301,6 +321,7 @@ var ServCelController = /** @class */ (function () {
                         });
                     }); })
                         .catch(function (err) {
+                        logs_1.saveControllerLogs('ERROR            ', { body: req.body, error: err.toString() }, 'servcelRecarga-controller');
                         statusCode = 400;
                         console.log(err);
                         return res.format({
@@ -311,6 +332,7 @@ var ServCelController = /** @class */ (function () {
                     });
                 }
                 catch (err) {
+                    logs_1.saveControllerLogs('ERROR            ', { body: req.body, error: err.toString() }, 'servcelRecarga-controller');
                     statusCode = 400;
                     console.log(err);
                     return [2 /*return*/, res.format({

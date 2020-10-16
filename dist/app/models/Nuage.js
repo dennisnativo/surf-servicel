@@ -40,6 +40,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var request_promise_1 = __importDefault(require("request-promise"));
+var uuid_1 = require("uuid");
 var database_1 = __importDefault(require("../../database"));
 var logs_1 = require("../helpers/logs");
 var Nuage = /** @class */ (function () {
@@ -57,9 +58,55 @@ var Nuage = /** @class */ (function () {
             });
         });
     };
-    Nuage.procNuage = function (msisdn) {
+    Nuage.saveRecargaOnDb = function (_a) {
+        var _b = _a.msisdn, msisdn = _b === void 0 ? '' : _b, _c = _a.valor, valor = _c === void 0 ? '' : _c, _d = _a.dtExecucao, dtExecucao = _d === void 0 ? '' : _d, _e = _a.origem, origem = _e === void 0 ? '' : _e, _f = _a.nsu, nsu = _f === void 0 ? '' : _f, _g = _a.transactionId, transactionId = _g === void 0 ? null : _g, _h = _a.phase, phase = _h === void 0 ? '' : _h, _j = _a.requestBody, requestBody = _j === void 0 ? '' : _j, _k = _a.requestHeader, requestHeader = _k === void 0 ? '' : _k, _l = _a.responseBody, responseBody = _l === void 0 ? '' : _l;
         return __awaiter(this, void 0, void 0, function () {
-            var body, proc200Response, response, phase, responseBody, proc210Response;
+            return __generator(this, function (_m) {
+                return [2 /*return*/, database_1.default.query("exec nuage.INS_SPEC_RECARGA\n          @msisdn = ?,\n          @valor = ?,\n          @dt_execucao = ?,\n          @origem = ?,\n          @nsu = ?,\n          @transaction_id = ?,\n          @phase = ?,\n          @request_body = ?,\n          @request_header = ?,\n          @response_body = ?,\n          @created_at = ?,\n          @updated_at = ?\n        ", {
+                        replacements: [
+                            msisdn, valor, dtExecucao, origem, nsu, transactionId, phase, requestBody, requestHeader, responseBody, new Date(), new Date()
+                        ]
+                    })];
+            });
+        });
+    };
+    Nuage.geraToken = function (body, controller) {
+        if (body === void 0) { body = {}; }
+        if (controller === void 0) { controller = ''; }
+        return __awaiter(this, void 0, void 0, function () {
+            var token, rastreio, response;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        token = '';
+                        rastreio = uuid_1.v4();
+                        logs_1.saveControllerLogs('PRE REQUEST TOKEN ', { body: body, rastreio: rastreio }, controller);
+                        return [4 /*yield*/, request_promise_1.default({
+                                uri: 'https://plataforma.surfgroup.com.br/api/spec/v1/auth',
+                                body: {
+                                    email: 'pagtel@api.com.br',
+                                    senha: '4GqQ8F2rF0bV'
+                                },
+                                method: 'POST',
+                                json: true
+                            }).then(function (response) {
+                                return response;
+                            }).catch(function (err) {
+                                console.log(err);
+                                return false;
+                            })];
+                    case 1:
+                        response = _a.sent();
+                        token = (response && response.sucesso === 0) ? response.token : '';
+                        logs_1.saveControllerLogs('PEGOU TOKEN       ', { body: body, token: token }, controller);
+                        return [2 /*return*/, token];
+                }
+            });
+        });
+    };
+    Nuage.procContaNuage = function (msisdn) {
+        return __awaiter(this, void 0, void 0, function () {
+            var body, proc200Response, token, phase, responseBody, retorno, transactionId, rastreio, response, proc210Response;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -76,69 +123,160 @@ var Nuage = /** @class */ (function () {
                     case 1:
                         proc200Response = _a.sent();
                         logs_1.saveControllerLogs('PROC 200 RESPONSE ', { body: body, proc200Response: proc200Response }, 'conta-controller');
+                        return [4 /*yield*/, this.geraToken(body, 'conta-controller')];
+                    case 2:
+                        token = _a.sent();
+                        phase = '210';
+                        responseBody = '';
+                        retorno = true;
+                        transactionId = null;
+                        if (!(token !== '')) return [3 /*break*/, 4];
+                        rastreio = uuid_1.v4();
+                        logs_1.saveControllerLogs('PRE REQUEST NUAGE ', { body: body, rastreio: rastreio }, 'conta-controller');
                         return [4 /*yield*/, request_promise_1.default({
                                 uri: "https://plataforma.surfgroup.com.br/api/spec/v1/conta/55" + msisdn,
+                                headers: {
+                                    token: token,
+                                    rastreio: rastreio
+                                },
                                 method: 'GET',
                                 json: true
                             }).then(function (response) {
+                                console.log(response);
                                 return response;
                             }).catch(function (err) {
                                 console.log(err);
                                 return false;
                             })];
-                    case 2:
+                    case 3:
                         response = _a.sent();
-                        phase = '210';
-                        responseBody = '';
                         if (!response || response.erro) {
                             phase = '99';
                             responseBody = '';
+                            retorno = false;
                         }
                         else {
                             responseBody = JSON.stringify(response);
+                            transactionId = response.transacao ? response.transacao : null;
                         }
                         logs_1.saveControllerLogs('POS-REQUEST-NUAGE ', { body: body, response: response }, 'conta-controller');
-                        return [4 /*yield*/, this.saveContaOnDb({
-                                msisdn: msisdn,
-                                accountId: null,
-                                iccid: null,
-                                transactionId: response.transacao ? response.transacao : null,
-                                phase: phase,
-                                requestBody: JSON.stringify(body),
-                                requestHeader: JSON.stringify({}),
-                                responseBody: responseBody
-                            })];
-                    case 3:
+                        return [3 /*break*/, 5];
+                    case 4:
+                        phase = '99';
+                        responseBody = '';
+                        retorno = false;
+                        _a.label = 5;
+                    case 5: return [4 /*yield*/, this.saveContaOnDb({
+                            msisdn: msisdn,
+                            accountId: null,
+                            iccid: null,
+                            transactionId: transactionId,
+                            phase: phase,
+                            requestBody: JSON.stringify(body),
+                            requestHeader: JSON.stringify({}),
+                            responseBody: responseBody
+                        })];
+                    case 6:
                         proc210Response = _a.sent();
                         logs_1.saveControllerLogs("PROC " + phase + " RESPONSE ", { body: body, proc210Response: proc210Response }, 'conta-controller');
                         logs_1.saveControllerLogs('FINAL             ', body, 'conta-controller');
-                        return [2 /*return*/, response];
+                        return [2 /*return*/, retorno];
                 }
             });
         });
     };
     Nuage.procRecargaNuage = function (entrada) {
         return __awaiter(this, void 0, void 0, function () {
-            var response;
+            var body, proc200Response, token, phase, responseBody, retorno, transactionId, rastreio, dataExecucao, recargaRequestBody, response, proc210Response;
             return __generator(this, function (_a) {
-                response = request_promise_1.default({
-                    uri: 'https://www.pagtel.com.br/Nuage-teste/api/v1/recarga',
-                    body: {
-                        msisdn: entrada.msisdn,
-                        valor: entrada.valor,
-                        dtExecucao: entrada.dtExecucao,
-                        origem: entrada.origem,
-                        nsu: entrada.nsu
-                    },
-                    method: 'POST',
-                    json: true
-                }).then(function (response) {
-                    return response;
-                }).catch(function (err) {
-                    console.log(err);
-                    return false;
-                });
-                return [2 /*return*/, response];
+                switch (_a.label) {
+                    case 0:
+                        body = entrada;
+                        logs_1.saveControllerLogs('INICIO            ', body, 'recarga-controller');
+                        return [4 /*yield*/, this.saveRecargaOnDb({
+                                msisdn: entrada.msisdn,
+                                valor: entrada.valor,
+                                dtExecucao: entrada.dtExecucao,
+                                origem: entrada.origem,
+                                nsu: entrada.nsu,
+                                phase: '200',
+                                requestBody: JSON.stringify(body),
+                                requestHeader: JSON.stringify({})
+                            })];
+                    case 1:
+                        proc200Response = _a.sent();
+                        logs_1.saveControllerLogs('PROC 200 RESPONSE ', { body: body, proc200Response: proc200Response }, 'recarga-controller');
+                        return [4 /*yield*/, this.geraToken(body, 'recarga-controller')];
+                    case 2:
+                        token = _a.sent();
+                        phase = '210';
+                        responseBody = '';
+                        retorno = '';
+                        transactionId = null;
+                        if (!(token !== '')) return [3 /*break*/, 4];
+                        rastreio = uuid_1.v4();
+                        dataExecucao = new Date(entrada.dtExecucao);
+                        recargaRequestBody = {
+                            msisdn: entrada.msisdn,
+                            valor: entrada.valor,
+                            dtExecucao: dataExecucao.toISOString(),
+                            origem: entrada.origem,
+                            nsu: entrada.nsu
+                        };
+                        logs_1.saveControllerLogs('PRE REQUEST NUAGE ', { body: body, rastreio: rastreio }, 'recarga-controller');
+                        return [4 /*yield*/, request_promise_1.default({
+                                uri: 'https://plataforma.surfgroup.com.br/api/spec-recarga/v1/recarga',
+                                headers: {
+                                    token: token,
+                                    rastreio: rastreio
+                                },
+                                body: recargaRequestBody,
+                                method: 'POST',
+                                json: true
+                            }).then(function (response) {
+                                console.log(response);
+                                return response;
+                            }).catch(function (err) {
+                                console.log(err);
+                                return false;
+                            })];
+                    case 3:
+                        response = _a.sent();
+                        if (!response || response.erro) {
+                            phase = '99';
+                            responseBody = '';
+                            retorno = response || 'ERROR';
+                        }
+                        else {
+                            responseBody = JSON.stringify(response);
+                            transactionId = response.transacao ? response.transacao : null;
+                            retorno = response;
+                        }
+                        logs_1.saveControllerLogs('POS-REQUEST-NUAGE ', { body: body, response: response }, 'recarga-controller');
+                        return [3 /*break*/, 5];
+                    case 4:
+                        phase = '99';
+                        responseBody = '';
+                        retorno = 'ERRO TOKEN';
+                        _a.label = 5;
+                    case 5: return [4 /*yield*/, this.saveRecargaOnDb({
+                            msisdn: entrada.msisdn,
+                            valor: entrada.valor,
+                            dtExecucao: entrada.dtExecucao,
+                            origem: entrada.origem,
+                            nsu: entrada.nsu,
+                            transactionId: transactionId,
+                            phase: phase,
+                            requestBody: JSON.stringify(body),
+                            requestHeader: JSON.stringify({}),
+                            responseBody: responseBody
+                        })];
+                    case 6:
+                        proc210Response = _a.sent();
+                        logs_1.saveControllerLogs("PROC " + phase + " RESPONSE ", { body: body, proc210Response: proc210Response }, 'recarga-controller');
+                        logs_1.saveControllerLogs('FINAL             ', body, 'recarga-controller');
+                        return [2 /*return*/, retorno];
+                }
             });
         });
     };
