@@ -1,4 +1,5 @@
 import request from 'request-promise'
+import dateFormat from 'dateformat'
 import { v4 } from 'uuid'
 import sequelize from '../../database'
 import { IRecargaRequest } from '../interfaces/ServCel'
@@ -164,10 +165,13 @@ class Nuage {
     const body = entrada
     saveControllerLogs('INICIO            ', body, 'recarga-controller')
 
+    const dataExecucao = new Date(entrada.dtExecucao)
+    dataExecucao.setHours(dataExecucao.getHours() - 3)
+
     const proc200Response = await this.saveRecargaOnDb({
       msisdn: entrada.msisdn,
       valor: entrada.valor,
-      dtExecucao: entrada.dtExecucao,
+      dtExecucao: dateFormat(dataExecucao, 'yyyy-mm-dd HH:MM:ss'),
       origem: entrada.origem,
       nsu: entrada.nsu,
       phase: '200',
@@ -186,7 +190,6 @@ class Nuage {
 
     if (token !== '') {
         const rastreio = v4()
-        const dataExecucao = new Date(entrada.dtExecucao)
 
         const recargaRequestBody = {
             msisdn: entrada.msisdn,
@@ -235,7 +238,7 @@ class Nuage {
     const proc210Response = await this.saveRecargaOnDb({
       msisdn: entrada.msisdn,
       valor: entrada.valor,
-      dtExecucao: entrada.dtExecucao,
+      dtExecucao: dateFormat(dataExecucao, 'yyyy-mm-dd HH:MM:ss'),
       origem: entrada.origem,
       nsu: entrada.nsu,
       transactionId,
