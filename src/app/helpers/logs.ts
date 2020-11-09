@@ -1,6 +1,6 @@
 import path from 'path'
 import { createWriteStream } from 'fs'
-import dateFormat = require('dateformat')
+import dateFormat from 'dateformat'
 
 function logBuilder (data: string, requestExtraData = {}) {
   const headerDate = new Date()

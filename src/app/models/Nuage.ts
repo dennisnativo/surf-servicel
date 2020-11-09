@@ -56,32 +56,32 @@ class Nuage {
     )
   }
 
-  public static async geraToken (body= {}, controller: string = ''): Promise<string> {
-      let token = ''
-      const rastreio = v4()
+  public static async geraToken (body = {}, controller: string = ''): Promise<string> {
+    let token = ''
+    const rastreio = v4()
 
-      saveControllerLogs('PRE REQUEST TOKEN ', { body, rastreio }, controller)
+    saveControllerLogs('PRE REQUEST TOKEN ', { body, rastreio }, controller)
 
-      const response = await request({
-        uri: 'https://plataforma.surfgroup.com.br/api/spec/v1/auth',
-        body: {
-            email: 'pagtel@api.com.br',
-            senha: '4GqQ8F2rF0bV'
-        },
-        method: 'POST',
-        json: true
-      }).then((response: any) => {
-        return response
-      }).catch((err) => {
-        console.log(err)
-        return false
-      })
+    const response = await request({
+      uri: 'https://plataforma.surfgroup.com.br/api/spec/v1/auth',
+      body: {
+        email: 'pagtel@api.com.br',
+        senha: '4GqQ8F2rF0bV'
+      },
+      method: 'POST',
+      json: true
+    }).then((response: any) => {
+      return response
+    }).catch((err) => {
+      console.log(err)
+      return false
+    })
 
-      token = (response && response.sucesso === 0) ? response.token : ''
+    token = response?.sucesso === 0 ? response.token : ''
 
-      saveControllerLogs('PEGOU TOKEN       ', { body, token }, controller)
-      
-      return token
+    saveControllerLogs('PEGOU TOKEN       ', { body, token }, controller)
+
+    return token
   }
 
   public static async procContaNuage (msisdn: string): Promise<any> {
@@ -107,40 +107,40 @@ class Nuage {
     let transactionId = null
 
     if (token !== '') {
-        const rastreio = v4()
+      const rastreio = v4()
 
-        saveControllerLogs('PRE REQUEST NUAGE ', { body, rastreio }, 'conta-controller')
+      saveControllerLogs('PRE REQUEST NUAGE ', { body, rastreio }, 'conta-controller')
 
-        const response = await request({
-          uri: `https://plataforma.surfgroup.com.br/api/spec/v1/conta/55${msisdn}`,
-          headers: {
-              token,
-              rastreio
-          },
-          method: 'GET',
-          json: true
-        }).then((response: any) => {
-          console.log(response)
-          return response
-        }).catch((err) => {
-          console.log(err)
-          return false
-        })
-    
-        if (!response || response.erro) {
-          phase = '99'
-          responseBody = ''
-          retorno = false
-        } else {
-          responseBody = JSON.stringify(response)
-          transactionId = response.transacao ? response.transacao : null
-        }
-    
-        saveControllerLogs('POS-REQUEST-NUAGE ', { body: body, response }, 'conta-controller')
-    } else {
+      const response = await request({
+        uri: `https://plataforma.surfgroup.com.br/api/spec/v1/conta/55${msisdn}`,
+        headers: {
+          token,
+          rastreio
+        },
+        method: 'GET',
+        json: true
+      }).then((response: any) => {
+        console.log(response)
+        return response
+      }).catch((err) => {
+        console.log(err)
+        return false
+      })
+
+      if (!response || response.erro) {
         phase = '99'
         responseBody = ''
         retorno = false
+      } else {
+        responseBody = JSON.stringify(response)
+        transactionId = response.transacao ? response.transacao : null
+      }
+
+      saveControllerLogs('POS-REQUEST-NUAGE ', { body: body, response }, 'conta-controller')
+    } else {
+      phase = '99'
+      responseBody = ''
+      retorno = false
     }
 
     const proc210Response = await this.saveContaOnDb({
@@ -189,50 +189,50 @@ class Nuage {
     let transactionId = null
 
     if (token !== '') {
-        const rastreio = v4()
+      const rastreio = v4()
 
-        const recargaRequestBody = {
-            msisdn: entrada.msisdn,
-            valor: entrada.valor,
-            dtExecucao: dataExecucao.toISOString(),
-            origem: entrada.origem,
-            nsu: entrada.nsu
-        }
+      const recargaRequestBody = {
+        msisdn: entrada.msisdn,
+        valor: entrada.valor,
+        dtExecucao: dataExecucao.toISOString(),
+        origem: entrada.origem,
+        nsu: entrada.nsu
+      }
 
-        saveControllerLogs('PRE REQUEST NUAGE ', { body, rastreio }, 'recarga-controller')
+      saveControllerLogs('PRE REQUEST NUAGE ', { body, rastreio }, 'recarga-controller')
 
-        const response = await request({
-          uri: 'https://plataforma.surfgroup.com.br/api/spec-recarga/v1/recarga',
-          headers: {
-              token,
-              rastreio
-          },
-          body: recargaRequestBody,
-          method: 'POST',
-          json: true
-        }).then((response: any) => {
-          console.log(response)
-          return response
-        }).catch((err) => {
-          console.log(err)
-          return false
-        })
-    
-        if (!response || response.erro) {
-          phase = '99'
-          responseBody = ''
-          retorno = response || 'ERROR'
-        } else {
-          responseBody = JSON.stringify(response)
-          transactionId = response.transacao ? response.transacao : null
-          retorno = response
-        }
-    
-        saveControllerLogs('POS-REQUEST-NUAGE ', { body: body, response }, 'recarga-controller')
-    } else {
+      const response = await request({
+        uri: 'https://plataforma.surfgroup.com.br/api/spec-recarga/v1/recarga',
+        headers: {
+          token,
+          rastreio
+        },
+        body: recargaRequestBody,
+        method: 'POST',
+        json: true
+      }).then((response: any) => {
+        console.log(response)
+        return response
+      }).catch((err) => {
+        console.log(err)
+        return false
+      })
+
+      if (!response || response.erro) {
         phase = '99'
         responseBody = ''
-        retorno = 'ERRO TOKEN'
+        retorno = response || 'ERROR'
+      } else {
+        responseBody = JSON.stringify(response)
+        transactionId = response.transacao ? response.transacao : null
+        retorno = response
+      }
+
+      saveControllerLogs('POS-REQUEST-NUAGE ', { body: body, response }, 'recarga-controller')
+    } else {
+      phase = '99'
+      responseBody = ''
+      retorno = 'ERRO TOKEN'
     }
 
     const proc210Response = await this.saveRecargaOnDb({
@@ -251,6 +251,98 @@ class Nuage {
     saveControllerLogs(`PROC ${phase} RESPONSE `, { body: body, proc210Response }, 'recarga-controller')
 
     saveControllerLogs('FINAL             ', body, 'recarga-controller')
+
+    return retorno
+  }
+
+  public static async addCredit (params: IRecargaRequest) {
+    saveControllerLogs('INICIO            ', params, 'recarga-controller')
+
+    const dataExecucao = new Date(params.dtExecucao)
+    dataExecucao.setHours(dataExecucao.getHours() - 3)
+
+    const proc200Response = await this.saveRecargaOnDb({
+      msisdn: params.msisdn,
+      valor: params.valor,
+      dtExecucao: dateFormat(dataExecucao, 'yyyy-mm-dd HH:MM:ss'),
+      origem: params.origem,
+      nsu: params.nsu,
+      phase: '200',
+      requestBody: JSON.stringify(params),
+      requestHeader: JSON.stringify({})
+    })
+
+    saveControllerLogs('PROC 200 RESPONSE ', { body: params, proc200Response }, 'recarga-controller')
+
+    const token = await this.geraToken(params, 'recarga-controller')
+
+    let phase = '210'
+    let responseBody: string = ''
+    let retorno = ''
+    let transactionId = null
+
+    if (token !== '') {
+      const rastreio = v4()
+
+      const recargaRequestBody = {
+        msisdn: params.msisdn,
+        valor: params.valor,
+        acao: 'c',
+        noProduto: 'PagTel'
+      }
+
+      saveControllerLogs('PRE REQUEST NUAGE ', { body: params, rastreio }, 'recarga-controller')
+
+      const response = await request({
+        uri: 'https://plataforma.surfgroup.com.br/api/spec-recarga/v1/recarga/credito',
+        headers: {
+          token,
+          rastreio
+        },
+        body: recargaRequestBody,
+        method: 'POST',
+        json: true
+      }).then((response: any) => {
+        console.log(response)
+        return response
+      }).catch((err) => {
+        console.log(err)
+        return false
+      })
+
+      if (!response || response.erro) {
+        phase = '99'
+        responseBody = ''
+        retorno = response || 'ERROR'
+      } else {
+        responseBody = JSON.stringify(response)
+        transactionId = response.transacao ? response.transacao : null
+        retorno = response
+      }
+
+      saveControllerLogs('POS-REQUEST-NUAGE ', { body: params, response }, 'recarga-controller')
+    } else {
+      phase = '99'
+      responseBody = ''
+      retorno = 'ERRO TOKEN'
+    }
+
+    const proc210Response = await this.saveRecargaOnDb({
+      msisdn: params.msisdn,
+      valor: params.valor,
+      dtExecucao: dateFormat(dataExecucao, 'yyyy-mm-dd HH:MM:ss'),
+      origem: params.origem,
+      nsu: params.nsu,
+      transactionId,
+      phase,
+      requestBody: JSON.stringify(params),
+      requestHeader: JSON.stringify({}),
+      responseBody
+    })
+
+    saveControllerLogs(`PROC ${phase} RESPONSE `, { body: params, proc210Response }, 'recarga-controller')
+
+    saveControllerLogs('FINAL             ', params, 'recarga-controller')
 
     return retorno
   }
