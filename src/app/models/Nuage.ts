@@ -7,8 +7,15 @@ import { saveControllerLogs } from '../helpers/logs'
 
 class Nuage {
   public static async saveContaOnDb ({
-    msisdn = '', accountId = null, iccid = null, transactionId = null, phase = '', requestBody = '', requestHeader = '', responseBody = ''
-  }): Promise<any> {
+    msisdn = '',
+    accountId = null,
+    iccid = null,
+    transactionId = null,
+    phase = '',
+    requestBody = '',
+    requestHeader = '',
+    responseBody = ''
+  }) {
     return sequelize.query(
           `exec nuage.INS_SPEC_CONTA
           @msisdn = ?,

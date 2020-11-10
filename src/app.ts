@@ -43,7 +43,9 @@ class App {
   }
 
   routes () {
-    this.server.use(routes)
+    const uri = process.env.APP_URI
+
+    this.server.use(`${uri}`, routes)
   }
 }
 

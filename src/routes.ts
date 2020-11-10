@@ -2,16 +2,13 @@ import { Router } from 'express'
 
 import headerMiddleware from './app/middlewares/header'
 import xmlToJsonMiddleware from './app/middlewares/xmlToJson'
-
-import ServCelController from './app/controllers/ServCelController'
+import { QueryController, RechargeController } from './app/controllers/servcell'
 
 const routes = Router()
 
-const uri = process.env.APP_URI
-
 routes.all('*', headerMiddleware, xmlToJsonMiddleware)
 
-routes.route(uri + '/consultaTelefone').post(ServCelController.index)
-routes.route(uri + '/recargaTelefone').post(ServCelController.store)
+routes.route('/consultaTelefone').post(QueryController)
+routes.route('/recargaTelefone').post(RechargeController)
 
 export default routes
