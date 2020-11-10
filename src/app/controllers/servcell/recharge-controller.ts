@@ -111,7 +111,8 @@ export const RechargeController = (req: Request, res: Response) => {
                 response.codResposta = '00'
 
                 const stringRechargeValue = `${body.valor.replace(',', '')}`
-                const rechargeOrigin = `${body.origin}`
+                const rechargeOrigin = `${body.origem}`
+
                 const requests = nuageRequests(body, responseTopUp)
 
                 if (isInterRecharge40WithDiscount(stringRechargeValue, rechargeOrigin)) {

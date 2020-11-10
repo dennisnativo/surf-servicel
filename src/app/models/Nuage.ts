@@ -63,6 +63,32 @@ class Nuage {
     )
   }
 
+  public static async saveCreditoOnDb ({
+    msisdn = '', valor = '', dtExecucao = '', origem = '', nsu = '', transactionId = null, phase = '', requestBody = '', requestHeader = '', responseBody = ''
+  }): Promise<any> {
+    return sequelize.query(
+          `exec nuage.INS_SPEC_CREDITO
+          @msisdn = ?,
+          @valor = ?,
+          @dt_execucao = ?,
+          @origem = ?,
+          @nsu = ?,
+          @transaction_id = ?,
+          @phase = ?,
+          @request_body = ?,
+          @request_header = ?,
+          @response_body = ?,
+          @created_at = ?,
+          @updated_at = ?
+        `,
+          {
+            replacements: [
+              msisdn, valor, dtExecucao, origem, nsu, transactionId, phase, requestBody, requestHeader, responseBody, new Date(), new Date()
+            ]
+          }
+    )
+  }
+
   public static async geraToken (body = {}, controller: string = ''): Promise<string> {
     let token = ''
     const rastreio = v4()
@@ -268,7 +294,7 @@ class Nuage {
     const dataExecucao = new Date(params.dtExecucao)
     dataExecucao.setHours(dataExecucao.getHours() - 3)
 
-    const proc200Response = await this.saveRecargaOnDb({
+    const proc200Response = await this.saveCreditoOnDb({
       msisdn: params.msisdn,
       valor: params.valor,
       dtExecucao: dateFormat(dataExecucao, 'yyyy-mm-dd HH:MM:ss'),
@@ -334,7 +360,7 @@ class Nuage {
       retorno = 'ERRO TOKEN'
     }
 
-    const proc210Response = await this.saveRecargaOnDb({
+    const proc210Response = await this.saveCreditoOnDb({
       msisdn: params.msisdn,
       valor: params.valor,
       dtExecucao: dateFormat(dataExecucao, 'yyyy-mm-dd HH:MM:ss'),
