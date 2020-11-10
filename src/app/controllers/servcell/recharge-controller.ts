@@ -19,9 +19,11 @@ interface NuageRequestsValues {
   creditValue: string
 }
 
-const isRecharge40WithDiscount = (value: string) => value === '10800' || value === '10200'
-const isRecharge50WithDiscount = (value: string) => value === '13500' || value === '12750'
-const isRecharge75WithDiscount = (value: string) => value === '20250' || value === '19125'
+const INTER_BANK_ORIGIN = '6302'
+
+const isInterRecharge40WithDiscount = (value: string, origin: string) => (value === '10800' || value === '10200') && origin === INTER_BANK_ORIGIN
+const isInterRecharge50WithDiscount = (value: string, origin: string) => (value === '13500' || value === '12750') && origin === INTER_BANK_ORIGIN
+const isInterRecharge75WithDiscount = (value: string, origin: string) => (value === '20250' || value === '19125') && origin === INTER_BANK_ORIGIN
 
 const nuageRequests = (body: any, responseTopUp: any) => async ({ rechargeValue, creditValue }: NuageRequestsValues) => {
   const dtExecucao = dateFormat(new Date(), 'yyyy-mm-dd HH:MM:ss')
@@ -108,14 +110,15 @@ export const RechargeController = (req: Request, res: Response) => {
               if (responseTopUp.code === '00') {
                 response.codResposta = '00'
 
-                const stringVal = `${body.valor.replace(',', '')}`
+                const stringRechargeValue = `${body.valor.replace(',', '')}`
+                const rechargeOrigin = `${body.origin}`
                 const requests = nuageRequests(body, responseTopUp)
 
-                if (isRecharge40WithDiscount(stringVal)) {
+                if (isInterRecharge40WithDiscount(stringRechargeValue, rechargeOrigin)) {
                   await requests({ rechargeValue: '4000', creditValue: '8000' })
-                } else if (isRecharge50WithDiscount(stringVal)) {
+                } else if (isInterRecharge50WithDiscount(stringRechargeValue, rechargeOrigin)) {
                   await requests({ rechargeValue: '5000', creditValue: '10000' })
-                } else if (isRecharge75WithDiscount(stringVal)) {
+                } else if (isInterRecharge75WithDiscount(stringRechargeValue, rechargeOrigin)) {
                   await requests({ rechargeValue: '7500', creditValue: '15000' })
                 } else {
                   // Recarga Nuage ********************************************
