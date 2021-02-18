@@ -124,7 +124,7 @@ export const RechargeController = (req: Request, res: Response) => {
             'servcelRecarga-controller'
           )
 
-          if (await NuageModel.procContaNuage(body.msisdn)) {
+          if (await NuageModel.checkIfNumberCanBeRefilled({ msisdn: body.msisdn, valor: body.valor })) {
             saveControllerLogs(
               'POS CONTA NUAGE   ',
               body,

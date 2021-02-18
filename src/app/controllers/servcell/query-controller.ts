@@ -44,7 +44,7 @@ export const QueryController = (req: Request, res: Response) => {
         if (body.msisdn.length === 11) {
           saveControllerLogs('POS VALID MSISDN  ', body, 'servcelConsulta-controller')
 
-          if (await NuageModel.procContaNuage(body.msisdn)) {
+          if (await NuageModel.checkIfNumberCanBeRefilled({ msisdn: body.msisdn, valor: body.valor })) {
             saveControllerLogs('POS CONTA NUAGE   ', body, 'servcelConsulta-controller')
 
             if (checkPlintron) {

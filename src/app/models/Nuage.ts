@@ -5,6 +5,10 @@ import sequelize from '../../database'
 import { IRecargaRequest } from '../interfaces/ServCel'
 import { saveControllerLogs } from '../helpers/logs'
 
+interface ICheckIfNumberCanBeRefilled{
+  msisdn: string
+  valor: number,
+}
 class Nuage {
   public static async saveContaOnDb ({
     msisdn = '',
@@ -117,8 +121,16 @@ class Nuage {
     return token
   }
 
-  public static async procContaNuage (msisdn: string): Promise<any> {
-    const body = { msisdn: '55' + msisdn }
+  public static async checkIfNumberCanBeRefilled ({ msisdn, valor }:ICheckIfNumberCanBeRefilled): Promise<any> {
+    const body = {
+      msisdn: '55' + msisdn,
+      valor,
+      dtExecucao: dateFormat(new Date(), 'yyyy-mm-dd HH:MM:ss'),
+      origem: 'ServCel',
+      nsu: v4(),
+      simular: 1
+    }
+
     saveControllerLogs('INICIO            ', body, 'conta-controller')
 
     const proc200Response = await this.saveContaOnDb({
@@ -145,12 +157,12 @@ class Nuage {
       saveControllerLogs('PRE REQUEST NUAGE ', { body, rastreio }, 'conta-controller')
 
       const response = await request({
-        uri: `https://plataforma.surfgroup.com.br/api/spec/v1/conta/55${msisdn}`,
+        uri: 'https://plataforma.surfgroup.com.br/api/spec-recarga/v1/recarga',
         headers: {
-          token,
-          rastreio
+          token
         },
-        method: 'GET',
+        body,
+        method: 'POST',
         json: true
       }).then((response: any) => {
         console.log(response)
