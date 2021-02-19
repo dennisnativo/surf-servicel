@@ -7,7 +7,7 @@ import { saveControllerLogs } from '../helpers/logs'
 
 interface ICheckIfNumberCanBeRefilled{
   msisdn: string
-  valor: number,
+  valor: string,
 }
 class Nuage {
   public static async saveContaOnDb ({
@@ -124,7 +124,7 @@ class Nuage {
   public static async checkIfNumberCanBeRefilled ({ msisdn, valor }:ICheckIfNumberCanBeRefilled): Promise<any> {
     const body = {
       msisdn: '55' + msisdn,
-      valor,
+      valor: valor.trim().replace(',', ''),
       dtExecucao: dateFormat(new Date(), 'yyyy-mm-dd HH:MM:ss'),
       origem: 'ServCel',
       nsu: v4(),
