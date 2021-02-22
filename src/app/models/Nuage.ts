@@ -100,7 +100,7 @@ class Nuage {
     saveControllerLogs('PRE REQUEST TOKEN ', { body, rastreio }, controller)
 
     const response = await request({
-      uri: 'https://plataforma.stage.surf.com.br/api/spec/v1/auth',
+      uri: 'https://plataforma.surfgroup.com.br/api/spec/v1/auth',
       body: {
         email: 'pagtel@api.com.br',
         senha: '4GqQ8F2rF0bV'
@@ -157,7 +157,7 @@ class Nuage {
       saveControllerLogs('PRE REQUEST NUAGE ', { body, rastreio }, 'conta-controller')
 
       const response = await request({
-        uri: 'https://plataforma.stage.surf.com.br/api/spec-recarga/v1/recarga',
+        uri: 'https://plataforma.surfgroup.com.br/api/spec-recarga/v1/recarga',
         headers: {
           token
         },
@@ -247,7 +247,7 @@ class Nuage {
       saveControllerLogs('PRE REQUEST NUAGE ', { body, rastreio }, 'recarga-controller')
 
       const response = await request({
-        uri: 'https://plataforma.stage.surf.com.br/api/spec-recarga/v1/recarga',
+        uri: 'https://plataforma.surfgroup.com.br/api/spec-recarga/v1/recarga',
         headers: {
           token,
           rastreio
@@ -339,7 +339,7 @@ class Nuage {
       saveControllerLogs('PRE REQUEST NUAGE ', { body: params, rastreio }, 'recarga-controller')
 
       const response = await request({
-        uri: 'https://plataforma.stage.surf.com.br/api/spec-recarga/v1/recarga/credito',
+        uri: 'https://plataforma.surfgroup.com.br/api/spec-recarga/v1/recarga/credito',
         headers: {
           token,
           rastreio
