@@ -16,7 +16,7 @@ export class Bundles {
   }: Request) {
     const response = request({
       uri: "http://192.168.120.25/bundle-api/api/v1/portabilities",
-      body: {
+      formData: {
         msisdn,
         network,
         authentication,
