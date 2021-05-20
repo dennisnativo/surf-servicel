@@ -25,9 +25,11 @@ export class Bundles {
       method: "POST",
     })
       .then((response: any) => {
-        return JSON.parse(response);
+        console.log(response);
+        return response;
       })
       .catch((err) => {
+        console.log(response);
         return err;
       });
 

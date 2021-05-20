@@ -29,40 +29,39 @@ const isInterRecharge50WithDiscount = (value: string, origin: string) =>
 const isInterRecharge75WithDiscount = (value: string, origin: string) =>
   (value === "20250" || value === "19125") && origin === INTER_BANK_ORIGIN;
 
-const nuageRequests = (body: any, responseTopUp: any) => async ({
-  rechargeValue,
-  creditValue,
-}: NuageRequestsValues) => {
-  const dtExecucao = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
+const nuageRequests =
+  (body: any, responseTopUp: any) =>
+  async ({ rechargeValue, creditValue }: NuageRequestsValues) => {
+    const dtExecucao = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
 
-  const responseNuage = await NuageModel.procRecargaNuage({
-    msisdn: "55" + body.msisdn,
-    valor: rechargeValue,
-    dtExecucao,
-    origem: "ServCel",
-    nsu: responseTopUp.transactionID,
-  });
+    const responseNuage = await NuageModel.procRecargaNuage({
+      msisdn: "55" + body.msisdn,
+      valor: rechargeValue,
+      dtExecucao,
+      origem: "ServCel",
+      nsu: responseTopUp.transactionID,
+    });
 
-  saveControllerLogs(
-    "POS RECARGA NUAGE ",
-    { body, response: responseNuage },
-    "servcelRecarga-controller"
-  );
+    saveControllerLogs(
+      "POS RECARGA NUAGE ",
+      { body, response: responseNuage },
+      "servcelRecarga-controller"
+    );
 
-  const responseCredit = await NuageModel.addCredit({
-    msisdn: "55" + body.msisdn,
-    valor: creditValue,
-    dtExecucao,
-    origem: "ServCel",
-    nsu: responseTopUp.transactionID,
-  });
+    const responseCredit = await NuageModel.addCredit({
+      msisdn: "55" + body.msisdn,
+      valor: creditValue,
+      dtExecucao,
+      origem: "ServCel",
+      nsu: responseTopUp.transactionID,
+    });
 
-  saveControllerLogs(
-    "POS ADD CREDIT NUAGE ",
-    { body, response: responseCredit },
-    "servcelRecarga-controller"
-  );
-};
+    saveControllerLogs(
+      "POS ADD CREDIT NUAGE ",
+      { body, response: responseCredit },
+      "servcelRecarga-controller"
+    );
+  };
 
 export const RechargeController = (req: Request, res: Response) => {
   saveControllerLogs(
@@ -86,17 +85,20 @@ export const RechargeController = (req: Request, res: Response) => {
           "servcelRecarga-controller"
         );
 
-        const servCelResponse: IServCelInsResponse = await ServCelModel.procInsServCel(
-          "Recarga",
-          200,
-          "",
-          null,
-          body
-        );
+        const servCelResponse: IServCelInsResponse =
+          await ServCelModel.procInsServCel("Recarga", 200, "", null, body);
 
         saveControllerLogs(
           "POS PROC 200      ",
           { body, response: servCelResponse },
+          "servcelRecarga-controller"
+        );
+
+        const responseGetAuth: IGetAuthResponse =
+          await ServCelModel.procGetAuth(body.msisdn, body.operadora);
+        saveControllerLogs(
+          "POS PROC GETAUTH  ",
+          { body, response: responseGetAuth },
           "servcelRecarga-controller"
         );
 
@@ -138,16 +140,6 @@ export const RechargeController = (req: Request, res: Response) => {
             );
 
             if (checkPlintron) {
-              const responseGetAuth: IGetAuthResponse = await ServCelModel.procGetAuth(
-                body.msisdn,
-                body.operadora
-              );
-              saveControllerLogs(
-                "POS PROC GETAUTH  ",
-                { body, response: responseGetAuth },
-                "servcelRecarga-controller"
-              );
-
               const dateNow = new Date();
               const transactionID: string = (
                 "SC" +
@@ -167,10 +159,11 @@ export const RechargeController = (req: Request, res: Response) => {
                 twoPhaseCommit: "1",
               };
 
-              const responseTopUp: ITopUpResponse = await ServCelModel.procInsPlintron(
-                responseGetAuth.authentication,
-                requestTopUp
-              );
+              const responseTopUp: ITopUpResponse =
+                await ServCelModel.procInsPlintron(
+                  responseGetAuth.authentication,
+                  requestTopUp
+                );
 
               saveControllerLogs(
                 "POSPROCINSPLINTRON",
@@ -236,13 +229,6 @@ export const RechargeController = (req: Request, res: Response) => {
                     "servcelRecarga-controller"
                   );
                 }
-
-                Bundles.bundlePortability({
-                  msisdn: "55" + body.msisdn,
-                  value: body.valor.replace(",", ""),
-                  authentication: responseGetAuth.authentication,
-                  network: responseGetAuth.network,
-                });
               } else {
                 response.codResposta = "10";
               }
@@ -250,10 +236,8 @@ export const RechargeController = (req: Request, res: Response) => {
               if (servCelResponse.code === "01") {
                 response.codResposta = servCelResponse.code;
               } else {
-                const responseApi: IServCelResponse = await ServCelModel.procGetCodResposta(
-                  body.msisdn,
-                  "Recarga"
-                );
+                const responseApi: IServCelResponse =
+                  await ServCelModel.procGetCodResposta(body.msisdn, "Recarga");
 
                 saveControllerLogs(
                   "POSPROCCODRESPOSTA",
@@ -286,6 +270,30 @@ export const RechargeController = (req: Request, res: Response) => {
           { body, response: responsePro210 },
           "servcelRecarga-controller"
         );
+
+        if (response.codResposta === "00") {
+          const responseBundle = await Bundles.bundlePortability({
+            msisdn: "55" + body.msisdn,
+            value: body.valor.replace(",", ""),
+            authentication: responseGetAuth.authentication,
+            network: responseGetAuth.network,
+          });
+
+          saveControllerLogs(
+            "CHAMADA BUNDLE PORTABILITY ",
+            {
+              body: {
+                msisdn: "55" + body.msisdn,
+                value: body.valor.replace(",", ""),
+                authentication: responseGetAuth.authentication,
+                network: responseGetAuth.network,
+              },
+              response: responseBundle,
+            },
+            "servcelRecarga-controller"
+          );
+        }
+
         saveControllerLogs(
           "FIM               ",
           body,
