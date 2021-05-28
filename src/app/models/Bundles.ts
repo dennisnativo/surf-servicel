@@ -16,12 +16,13 @@ export class Bundles {
   }: Request) {
     const response = request({
       uri: "http://192.168.120.25/bundle-api/api/v1/portabilities",
-      formData: {
+      body: {
         msisdn,
         network,
         authentication,
         value,
       },
+      json: true,
       method: "POST",
     })
       .then((response: any) => {
@@ -29,7 +30,6 @@ export class Bundles {
         return response;
       })
       .catch((err) => {
-        console.log(response);
         return err;
       });
 
