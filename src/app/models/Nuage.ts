@@ -241,7 +241,8 @@ class Nuage {
         valor: entrada.valor,
         dtExecucao: dataExecucao.toISOString(),
         origem: entrada.origem,
-        nsu: entrada.nsu
+        nsu: entrada.nsu,
+        recorrencia: entrada.recorrencia
       }
 
       saveControllerLogs('PRE REQUEST NUAGE ', { body, rastreio }, 'recarga-controller')
