@@ -52,4 +52,5 @@ export interface IRecargaRequest {
   dtExecucao: string
   origem: string
   nsu: string
+  recorrencia: string
 }
