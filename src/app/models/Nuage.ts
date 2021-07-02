@@ -150,7 +150,7 @@ class Nuage {
 
     saveControllerLogs('POS-REQUEST-CONTA ', { body: body, response }, 'conta-controller')
 
-    return (response && response.sucesso === 0) ? response.sucesso.resultado.mvno : null
+    return (response && response.sucesso === 0) ? response.resultado.mvno : null
   }
 
   public static async checkIfNumberCanBeRefilled ({ msisdn, valor }:ICheckIfNumberCanBeRefilled): Promise<any> {
