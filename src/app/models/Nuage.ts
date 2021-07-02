@@ -123,13 +123,13 @@ class Nuage {
 
   public static async checkMvno (msisdn: string) {
     const body = {
-      msisdn
+      msisdn: '55' + msisdn
     }
 
     const token = await this.geraToken(body, 'conta-controller')
 
     const response = await request({
-      uri: `https://plataforma.surfgroup.com.br/api/spec/v1/conta/${msisdn}`,
+      uri: `https://plataforma.surfgroup.com.br/api/spec/v1/conta/55${msisdn}`,
       headers: {
         token
       },
