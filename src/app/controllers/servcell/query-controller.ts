@@ -44,6 +44,12 @@ export const QueryController = (req: Request, res: Response) => {
         if (body.msisdn.length === 11) {
           saveControllerLogs('POS VALID MSISDN  ', body, 'servcelConsulta-controller')
 
+          const mvnoNuage = await NuageModel.checkMvno(body.msisdn)
+
+          if (mvnoNuage === 'UBER CHIP') {
+            body.valor = (parseInt(body.valor) + 1).toString()
+          }
+
           if (await NuageModel.checkIfNumberCanBeRefilled({ msisdn: body.msisdn, valor: body.valor })) {
             saveControllerLogs('POS CONTA NUAGE   ', body, 'servcelConsulta-controller')
 
