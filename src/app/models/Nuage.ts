@@ -126,7 +126,11 @@ class Nuage {
       msisdn: '55' + msisdn
     }
 
+    saveControllerLogs('INICIO            ', body, 'conta-controller')
+
     const token = await this.geraToken(body, 'conta-controller')
+
+    saveControllerLogs('PRE REQUEST CONTA ', { body }, 'conta-controller')
 
     const response = await request({
       uri: `https://plataforma.surfgroup.com.br/api/spec/v1/conta/55${msisdn}`,
@@ -143,6 +147,8 @@ class Nuage {
       console.log(err)
       return false
     })
+
+    saveControllerLogs('POS-REQUEST-CONTA ', { body: body, response }, 'conta-controller')
 
     return (response && response.data && response.data.sucesso === 0) ? response.data.sucesso.resultado.mvno : null
   }
