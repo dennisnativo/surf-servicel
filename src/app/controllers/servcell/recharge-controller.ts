@@ -129,6 +129,12 @@ export const RechargeController = (req: Request, res: Response) => {
             'servcelRecarga-controller'
           )
 
+          const mvnoNuage = await NuageModel.checkMvno(body.msisdn)
+
+          if (mvnoNuage === 'UBER CHIP') {
+            body.valor = (parseInt(body.valor) + 1).toString()
+          }
+
           if (
             await NuageModel.checkIfNumberCanBeRefilled({
               msisdn: body.msisdn,

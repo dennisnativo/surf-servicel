@@ -121,6 +121,32 @@ class Nuage {
     return token
   }
 
+  public static async checkMvno (msisdn: string) {
+    const body = {
+      msisdn
+    }
+
+    const token = await this.geraToken(body, 'conta-controller')
+
+    const response = await request({
+      uri: `https://plataforma.surfgroup.com.br/api/spec/v1/conta/${msisdn}`,
+      headers: {
+        token
+      },
+      body,
+      method: 'POST',
+      json: true
+    }).then((response: any) => {
+      console.log(response)
+      return response
+    }).catch((err) => {
+      console.log(err)
+      return false
+    })
+
+    return (response && response.data && response.data.sucesso === 0) ? response.data.sucesso.resultado.mvno : null
+  }
+
   public static async checkIfNumberCanBeRefilled ({ msisdn, valor }:ICheckIfNumberCanBeRefilled): Promise<any> {
     const body = {
       msisdn: '55' + msisdn,
