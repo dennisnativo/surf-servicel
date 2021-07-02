@@ -54,3 +54,21 @@ export interface IRecargaRequest {
   nsu: string
   recorrencia: string
 }
+
+export interface IUSPRecharge {
+  network: string
+  phone: string
+  rechargePhone: string
+  rechargeNetworkId: string | null
+  transId: string | null
+  paymentType: string
+  paymentId: number
+  value: string
+  statusId: string
+  codRet: string | null
+  returnMsg: string
+  sourceId: number
+  program: boolean
+  cpf: string | null
+  isSocio: boolean
+}

@@ -2,7 +2,7 @@ import { QueryTypes } from 'sequelize'
 import request from 'request-promise'
 import sequelize from '../../database'
 
-import { IServCelRequest, ITopUpRequest } from '../interfaces/ServCel'
+import { IServCelRequest, ITopUpRequest, IUSPRecharge } from '../interfaces/ServCel'
 
 class ServCel {
   public static async procInsServCel (metodo: string, phase: number, codResposta: string, plintron: boolean | null, request: IServCelRequest): Promise<any> {
@@ -25,6 +25,7 @@ class ServCel {
       { type: QueryTypes.SELECT }
     )
       .then((response: any) => {
+        console.log(response)
         return response[0]
       })
       .catch((err: any) => {
@@ -126,6 +127,38 @@ class ServCel {
       // console.log(err)
       return err
     })
+
+    return response
+  }
+
+  public static procInsRecharge = async (request: IUSPRecharge) => {
+    console.log({ request })
+    const response = await sequelize.query(
+      `EXEC [Hub360].[recharge].[USP_RECHARGE] 
+      @network = N'${request.network}',
+      @phone = N'${request.phone}',
+      @rechargePhone = N'${request.rechargePhone}',
+      @rechargeNetworkId = N'${request.rechargeNetworkId}',
+      @transId = N'${request.transId}',
+      @paymentType = N'${request.paymentType}',
+      @paymentId = ${request.paymentId},
+      @value = N'${request.value}',
+      @statusId = N'${request.statusId}',
+      @codRet = N'${request.codRet}',
+      @returnMsg = N'${request.returnMsg}',
+      @sourceId = ${request.sourceId},
+      @program = ${request.program},
+      @cpf = N'${request.cpf}',
+      @isSocio = ${request.isSocio}`,
+      { type: QueryTypes.SELECT }
+    )
+      .then((response: any) => {
+        return response[0]
+      })
+      .catch((err: any) => {
+        console.log(err)
+        return null
+      })
 
     return response
   }

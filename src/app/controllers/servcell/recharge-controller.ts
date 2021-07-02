@@ -98,6 +98,7 @@ export const RechargeController = (req: Request, res: Response) => {
 
         const responseGetAuth: IGetAuthResponse =
           await ServCelModel.procGetAuth(body.msisdn, body.operadora)
+
         saveControllerLogs(
           'POS PROC GETAUTH  ',
           { body, response: responseGetAuth },
@@ -121,6 +122,8 @@ export const RechargeController = (req: Request, res: Response) => {
             }
           })
         }
+
+        const rechargeValue = body.valor
 
         if (body.msisdn.length === 11) {
           saveControllerLogs(
@@ -273,6 +276,24 @@ export const RechargeController = (req: Request, res: Response) => {
           checkPlintron,
           body
         )
+
+        await ServCelModel.procInsRecharge({
+          network: 'ServCel',
+          phone: `55${body.msisdn}`,
+          rechargePhone: `55${body.msisdn}`,
+          rechargeNetworkId: body.chave,
+          transId: '',
+          paymentType: 'S',
+          paymentId: 0,
+          value: rechargeValue.trim().replace(',', '.'),
+          statusId: `P${response.codResposta}`,
+          codRet: '',
+          returnMsg: (response.codResposta === '00') ? 'SUCESSO' : 'NEGADA',
+          sourceId: 195,
+          program: false,
+          cpf: '',
+          isSocio: false
+        })
 
         saveControllerLogs(
           'POS PROC 210      ',
