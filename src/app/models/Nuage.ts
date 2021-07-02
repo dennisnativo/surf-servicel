@@ -138,7 +138,7 @@ class Nuage {
         token
       },
       body,
-      method: 'POST',
+      method: 'GET',
       json: true
     }).then((response: any) => {
       console.log(response)
