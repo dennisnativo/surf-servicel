@@ -47,59 +47,59 @@ export const QueryController = (req: Request, res: Response) => {
           const mvnoNuage = await NuageModel.checkMvno(body.msisdn)
 
           if (mvnoNuage === 'UBER CHIP') {
-            body.valor = `${parseInt(body.valor)},01`
-          }
+            response.codResposta = '12'
+          } else {
+            if (await NuageModel.checkIfNumberCanBeRefilled({ msisdn: body.msisdn, valor: body.valor })) {
+              saveControllerLogs('POS CONTA NUAGE   ', body, 'servcelConsulta-controller')
 
-          if (await NuageModel.checkIfNumberCanBeRefilled({ msisdn: body.msisdn, valor: body.valor })) {
-            saveControllerLogs('POS CONTA NUAGE   ', body, 'servcelConsulta-controller')
+              if (checkPlintron) {
+                const responseGetAuth: IGetAuthResponse = await ServCelModel.procGetAuth(body.msisdn, body.operadora)
 
-            if (checkPlintron) {
-              const responseGetAuth: IGetAuthResponse = await ServCelModel.procGetAuth(body.msisdn, body.operadora)
+                saveControllerLogs('POS PROC GETAUTH  ', { body, response: responseGetAuth }, 'servcelConsulta-controller')
 
-              saveControllerLogs('POS PROC GETAUTH  ', { body, response: responseGetAuth }, 'servcelConsulta-controller')
+                const dateNow = new Date()
+                const transactionID: string = (
+                  'SC' +
+                  servCelResponse.idServCel +
+                  dateFormat(dateNow, 'yyyymmdhhMMss')
+                ).padStart(19, '0')
 
-              const dateNow = new Date()
-              const transactionID: string = (
-                'SC' +
-                servCelResponse.idServCel +
-                dateFormat(dateNow, 'yyyymmdhhMMss')
-              ).padStart(19, '0')
+                const requestTopUp: ITopUpRequest = {
+                  productID: responseGetAuth.plintronProductId,
+                  MSISDN: '55' + body.msisdn,
+                  amount: body.valor.replace(',', ''),
+                  transactionID,
+                  terminalID: '02SV',
+                  currency: 'BRL',
+                  cardID: 'Card',
+                  retailerID: 'MGM',
+                  twoPhaseCommit: '0'
+                }
 
-              const requestTopUp: ITopUpRequest = {
-                productID: responseGetAuth.plintronProductId,
-                MSISDN: '55' + body.msisdn,
-                amount: body.valor.replace(',', ''),
-                transactionID,
-                terminalID: '02SV',
-                currency: 'BRL',
-                cardID: 'Card',
-                retailerID: 'MGM',
-                twoPhaseCommit: '0'
-              }
+                const responseTopUp: ITopUpResponse = await ServCelModel.procInsPlintron(
+                  responseGetAuth.authentication,
+                  requestTopUp
+                )
 
-              const responseTopUp: ITopUpResponse = await ServCelModel.procInsPlintron(
-                responseGetAuth.authentication,
-                requestTopUp
-              )
+                saveControllerLogs('POSPROCINSPLINTRON', { body, response: responseTopUp }, 'servcelConsulta-controller')
 
-              saveControllerLogs('POSPROCINSPLINTRON', { body, response: responseTopUp }, 'servcelConsulta-controller')
-
-              if (responseTopUp.code === '00') {
-                response.codResposta = '00'
+                if (responseTopUp.code === '00') {
+                  response.codResposta = '00'
+                } else {
+                  response.codResposta = '10'
+                }
               } else {
-                response.codResposta = '10'
+                const responseApi: IServCelResponse = await ServCelModel.procGetCodResposta(body.msisdn, 'Consulta')
+
+                saveControllerLogs('POSPROCCODRESPOSTA', { body, response: responseApi }, 'servcelConsulta-controller')
+
+                if (responseApi) {
+                  response.codResposta = responseApi.codResposta
+                }
               }
             } else {
-              const responseApi: IServCelResponse = await ServCelModel.procGetCodResposta(body.msisdn, 'Consulta')
-
-              saveControllerLogs('POSPROCCODRESPOSTA', { body, response: responseApi }, 'servcelConsulta-controller')
-
-              if (responseApi) {
-                response.codResposta = responseApi.codResposta
-              }
+              response.codResposta = '12'
             }
-          } else {
-            response.codResposta = '12'
           }
         } else {
           response.codResposta = '12'

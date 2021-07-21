@@ -135,135 +135,135 @@ export const RechargeController = (req: Request, res: Response) => {
           const mvnoNuage = await NuageModel.checkMvno(body.msisdn)
 
           if (mvnoNuage === 'UBER CHIP') {
-            body.valor = `${parseInt(body.valor)},01`
-          }
-
-          if (
-            await NuageModel.checkIfNumberCanBeRefilled({
-              msisdn: body.msisdn,
-              valor: body.valor
-            })
-          ) {
-            saveControllerLogs(
-              'POS CONTA NUAGE   ',
-              body,
-              'servcelRecarga-controller'
-            )
-
-            if (checkPlintron) {
-              const dateNow = new Date()
-              const transactionID: string = (
-                'SC' +
-                servCelResponse.idServCel +
-                dateFormat(dateNow, 'yyyymmdhhMMss')
-              ).padStart(19, '0')
-
-              const requestTopUp: ITopUpRequest = {
-                productID: responseGetAuth.plintronProductId,
-                MSISDN: '55' + body.msisdn,
-                amount: body.valor.replace(',', ''),
-                transactionID,
-                terminalID: '02SV',
-                currency: 'BRL',
-                cardID: 'Card',
-                retailerID: 'MGM',
-                twoPhaseCommit: '1'
-              }
-
-              const responseTopUp: ITopUpResponse =
-                await ServCelModel.procInsPlintron(
-                  responseGetAuth.authentication,
-                  requestTopUp
-                )
-
+            response.codResposta = '12'
+          } else {
+            if (
+              await NuageModel.checkIfNumberCanBeRefilled({
+                msisdn: body.msisdn,
+                valor: body.valor
+              })
+            ) {
               saveControllerLogs(
-                'POSPROCINSPLINTRON',
-                { body, response: responseTopUp },
+                'POS CONTA NUAGE   ',
+                body,
                 'servcelRecarga-controller'
               )
 
-              if (responseTopUp.code === '00') {
-                response.codResposta = '00'
+              if (checkPlintron) {
+                const dateNow = new Date()
+                const transactionID: string = (
+                  'SC' +
+                  servCelResponse.idServCel +
+                  dateFormat(dateNow, 'yyyymmdhhMMss')
+                ).padStart(19, '0')
 
-                const stringRechargeValue = `${body.valor.replace(',', '')}`
-                const rechargeOrigin = `${body.origem}`
-
-                const requests = nuageRequests(body, responseTopUp)
-
-                if (
-                  isInterRecharge40WithDiscount(
-                    stringRechargeValue,
-                    rechargeOrigin
-                  )
-                ) {
-                  await requests({
-                    rechargeValue: '4000',
-                    creditValue: '8000'
-                  })
-                } else if (
-                  isInterRecharge50WithDiscount(
-                    stringRechargeValue,
-                    rechargeOrigin
-                  )
-                ) {
-                  await requests({
-                    rechargeValue: '5000',
-                    creditValue: '10000'
-                  })
-                } else if (
-                  isInterRecharge75WithDiscount(
-                    stringRechargeValue,
-                    rechargeOrigin
-                  )
-                ) {
-                  await requests({
-                    rechargeValue: '7500',
-                    creditValue: '15000'
-                  })
-                } else {
-                  // Recarga Nuage ********************************************
-                  const requestRecarga: IRecargaRequest = {
-                    msisdn: '55' + body.msisdn,
-                    valor: body.valor.replace(',', ''),
-                    dtExecucao: dateFormat(new Date(), 'yyyy-mm-dd HH:MM:ss'),
-                    origem: 'ServCel',
-                    nsu: responseTopUp.transactionID,
-                    recorrencia: 'N'
-                  }
-
-                  const responseNuage = await NuageModel.procRecargaNuage(
-                    requestRecarga
-                  )
-
-                  saveControllerLogs(
-                    'POS RECARGA NUAGE ',
-                    { body, response: responseNuage },
-                    'servcelRecarga-controller'
-                  )
+                const requestTopUp: ITopUpRequest = {
+                  productID: responseGetAuth.plintronProductId,
+                  MSISDN: '55' + body.msisdn,
+                  amount: body.valor.replace(',', ''),
+                  transactionID,
+                  terminalID: '02SV',
+                  currency: 'BRL',
+                  cardID: 'Card',
+                  retailerID: 'MGM',
+                  twoPhaseCommit: '1'
                 }
-              } else {
-                response.codResposta = '10'
-              }
-            } else {
-              if (servCelResponse.code === '01') {
-                response.codResposta = servCelResponse.code
-              } else {
-                const responseApi: IServCelResponse =
-                  await ServCelModel.procGetCodResposta(body.msisdn, 'Recarga')
+
+                const responseTopUp: ITopUpResponse =
+                  await ServCelModel.procInsPlintron(
+                    responseGetAuth.authentication,
+                    requestTopUp
+                  )
 
                 saveControllerLogs(
-                  'POSPROCCODRESPOSTA',
-                  { body, response: responseApi },
+                  'POSPROCINSPLINTRON',
+                  { body, response: responseTopUp },
                   'servcelRecarga-controller'
                 )
 
-                if (responseApi) {
-                  response.codResposta = responseApi.codResposta
+                if (responseTopUp.code === '00') {
+                  response.codResposta = '00'
+
+                  const stringRechargeValue = `${body.valor.replace(',', '')}`
+                  const rechargeOrigin = `${body.origem}`
+
+                  const requests = nuageRequests(body, responseTopUp)
+
+                  if (
+                    isInterRecharge40WithDiscount(
+                      stringRechargeValue,
+                      rechargeOrigin
+                    )
+                  ) {
+                    await requests({
+                      rechargeValue: '4000',
+                      creditValue: '8000'
+                    })
+                  } else if (
+                    isInterRecharge50WithDiscount(
+                      stringRechargeValue,
+                      rechargeOrigin
+                    )
+                  ) {
+                    await requests({
+                      rechargeValue: '5000',
+                      creditValue: '10000'
+                    })
+                  } else if (
+                    isInterRecharge75WithDiscount(
+                      stringRechargeValue,
+                      rechargeOrigin
+                    )
+                  ) {
+                    await requests({
+                      rechargeValue: '7500',
+                      creditValue: '15000'
+                    })
+                  } else {
+                    // Recarga Nuage ********************************************
+                    const requestRecarga: IRecargaRequest = {
+                      msisdn: '55' + body.msisdn,
+                      valor: body.valor.replace(',', ''),
+                      dtExecucao: dateFormat(new Date(), 'yyyy-mm-dd HH:MM:ss'),
+                      origem: 'ServCel',
+                      nsu: responseTopUp.transactionID,
+                      recorrencia: 'N'
+                    }
+
+                    const responseNuage = await NuageModel.procRecargaNuage(
+                      requestRecarga
+                    )
+
+                    saveControllerLogs(
+                      'POS RECARGA NUAGE ',
+                      { body, response: responseNuage },
+                      'servcelRecarga-controller'
+                    )
+                  }
+                } else {
+                  response.codResposta = '10'
+                }
+              } else {
+                if (servCelResponse.code === '01') {
+                  response.codResposta = servCelResponse.code
+                } else {
+                  const responseApi: IServCelResponse =
+                    await ServCelModel.procGetCodResposta(body.msisdn, 'Recarga')
+
+                  saveControllerLogs(
+                    'POSPROCCODRESPOSTA',
+                    { body, response: responseApi },
+                    'servcelRecarga-controller'
+                  )
+
+                  if (responseApi) {
+                    response.codResposta = responseApi.codResposta
+                  }
                 }
               }
+            } else {
+              response.codResposta = '12'
             }
-          } else {
-            response.codResposta = '12'
           }
         } else {
           response.codResposta = '12'
