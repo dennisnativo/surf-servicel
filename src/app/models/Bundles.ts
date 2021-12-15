@@ -1,4 +1,4 @@
-import request from "request-promise";
+import request from 'request-promise'
 
 type Request = {
   msisdn: string;
@@ -8,31 +8,31 @@ type Request = {
 };
 
 export class Bundles {
-  public static async bundlePortability({
+  public static async bundlePortability ({
     msisdn,
     network,
     authentication,
-    value,
+    value
   }: Request) {
     const response = request({
-      uri: "http://192.168.120.25/bundle-api/api/v1/portabilities",
+      uri: 'http://192.168.120.25/bundle-api/api/v1/portabilities',
       body: {
         msisdn,
         network,
         authentication,
-        value,
+        value
       },
       json: true,
-      method: "POST",
+      method: 'POST'
     })
       .then((response: any) => {
-        console.log(response);
-        return response;
+        console.log(response)
+        return response
       })
       .catch((err) => {
-        return err;
-      });
+        return err
+      })
 
-    return response;
+    return response
   }
 }

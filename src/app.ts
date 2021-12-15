@@ -1,12 +1,10 @@
-import 'dotenv/config'
-
-import express from 'express'
-import { Express } from 'express-serve-static-core'
+import express, { Express } from 'express'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import bodyParserXml from 'express-xml-bodyparser'
 import sequelize from './database'
 import routes from './routes'
+import { APP } from './app/utils/constants'
 
 class App {
   server: Express
@@ -18,13 +16,13 @@ class App {
 
   async init () {
     try {
-      if (process.env.NODE_ENV !== 'test') {
+      if (APP.NODE_ENV !== 'test') {
         sequelize.authenticate()
           .then(() => {
-            process.env.NODE_ENV === 'development' && console.log('Conexão ao banco Hub360 realizada com sucesso')
+            APP.NODE_ENV === 'development' && console.log('Conexão ao banco Hub360 realizada com sucesso')
           })
           .catch((err: any) => {
-            process.env.NODE_ENV === 'development' && console.log('Erro na conexão: ', err.message)
+            APP.NODE_ENV === 'development' && console.log('Erro na conexão: ', err.message)
           })
       }
 
@@ -43,7 +41,7 @@ class App {
   }
 
   routes () {
-    const uri = process.env.APP_URI
+    const uri = APP.URI
 
     this.server.use(`${uri}`, routes)
   }

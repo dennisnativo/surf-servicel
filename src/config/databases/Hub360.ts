@@ -1,16 +1,17 @@
+import { DB } from '../../app/utils/constants'
 import { Options } from 'sequelize/types'
 
-export const database: string = process.env.DB_HUB360_DATABASE || ''
+export const database: string = DB.HUB360_DB || ''
 
-export const username: string = process.env.DB_USERNAME || ''
-export const password: string = process.env.DB_PASSWORD || ''
+export const username: string = DB.USERNAME || ''
+export const password: string = DB.PASSWORD || ''
 
 export const configDatabase: Options = {
   dialect: 'mssql',
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT || '0'),
+  host: DB.HOST,
+  port: parseInt(DB.PORT || '0'),
   dialectOptions: {
-    instanceName: process.env.DB_INSTANCENAME
+    instanceName: DB.INSTANCENAME
   },
   database: database
 }
