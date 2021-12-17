@@ -22,6 +22,8 @@ export const QueryController = (req: Request, res: Response) => {
     codResposta: '10'
   }
 
+  const agent = ElasticAPM.getInstance().getAPM()
+
   try {
     queryYupSchema
       .validate(req.body.xml)
@@ -125,7 +127,7 @@ export const QueryController = (req: Request, res: Response) => {
         })
       })
       .catch((err: any) => {
-        ElasticAPM.getInstance().getAPM().captureError(err)
+        agent.captureError(err)
         saveControllerLogs('ERROR            ', { body: req.body, error: err.toString() }, 'servcelConsulta-controller', 'error')
 
         statusCode = 400
@@ -138,7 +140,7 @@ export const QueryController = (req: Request, res: Response) => {
         })
       })
   } catch (err) {
-    ElasticAPM.getInstance().getAPM().captureError(err)
+    agent.captureError(err)
     saveControllerLogs('ERROR            ', { body: req.body, error: err.toString() }, 'servcelConsulta-controller', 'error')
 
     statusCode = 400
