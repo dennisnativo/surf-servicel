@@ -1,10 +1,13 @@
 import { QueryTypes } from 'sequelize'
-import request from 'request-promise'
 import sequelize from '../../database'
 
 import { IServCelRequest, ITopUpRequest, IUSPRecharge } from '../interfaces/ServCel'
+import { ElasticAPM } from '../infra/observability/apm'
+import axios from 'axios'
 
 class ServCel {
+  private static agent = ElasticAPM.getInstance().getAPM()
+
   public static async procInsServCel (metodo: string, phase: number, codResposta: string, plintron: boolean | null, request: IServCelRequest): Promise<any> {
     const response = await sequelize.query(
       `exec HUB360.[recharge].[INS_SERVCEL] 
@@ -25,11 +28,11 @@ class ServCel {
       { type: QueryTypes.SELECT }
     )
       .then((response: any) => {
-        console.log(response)
+        // console.log(response)
         return response[0]
       })
       .catch((err: any) => {
-        console.log(err)
+        // console.log(err)
         return null
       })
 
@@ -46,7 +49,7 @@ class ServCel {
         return response[0]
       })
       .catch((err: any) => {
-        console.log(err)
+        // console.log(err)
         return null
       })
 
@@ -62,7 +65,7 @@ class ServCel {
         return response[0]
       })
       .catch((err: any) => {
-        console.log(err)
+        // console.log(err)
         return null
       })
 
@@ -80,7 +83,7 @@ class ServCel {
         return response[0]
       })
       .catch((err: any) => {
-        console.log(err)
+        // console.log(err)
         return null
       })
 
@@ -106,7 +109,7 @@ class ServCel {
         return response[0]
       })
       .catch((err: any) => {
-        console.log(err)
+        // console.log(err)
         return null
       })
 
@@ -114,16 +117,25 @@ class ServCel {
   }
 
   public static async procTopUp (auth: string, requestData: ITopUpRequest): Promise<any> {
-    const response = request({
-      uri: 'http://192.168.120.25/Hub360/topUp',
+    const formData = new FormData()
+
+    for (const key in Object.keys(requestData)) {
+      formData.append(key, requestData[key])
+    }
+
+    const response = await axios({
+      method: 'POST',
+      url: 'http://192.168.120.25/Hub360/topUp',
+      data: formData,
       headers: {
         Authorization: auth
-      },
-      formData: { ...requestData },
-      method: 'POST'
+      }
     }).then((response: any) => {
+      this.agent.currentSpan.addLabels({ ...requestData, auth, response, endpoint: '/Hub360/topUp' })
       return JSON.parse(response)
     }).catch((err) => {
+      this.agent.currentSpan.addLabels({ ...requestData, auth, endpoint: '/Hub360/topUp' })
+      this.agent.captureError(err)
       // console.log(err)
       return err
     })
@@ -132,7 +144,7 @@ class ServCel {
   }
 
   public static procInsRecharge = async (request: IUSPRecharge) => {
-    console.log({ request })
+    // console.log({ request })
     const response = await sequelize.query(
       `EXEC [Hub360].[recharge].[USP_RECHARGE] 
       @network = N'${request.network}',
@@ -156,7 +168,7 @@ class ServCel {
         return response[0]
       })
       .catch((err: any) => {
-        console.log(err)
+        // console.log(err)
         return null
       })
 

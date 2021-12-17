@@ -1,15 +1,18 @@
-import request from 'request-promise'
 import dateFormat from 'dateformat'
 import { v4 } from 'uuid'
 import sequelize from '../../database'
 import { IRecargaRequest } from '../interfaces/ServCel'
 import { saveControllerLogs } from '../helpers/logs'
+import { ElasticAPM } from '../infra/observability/apm'
+import axios from 'axios'
 
 interface ICheckIfNumberCanBeRefilled{
   msisdn: string
   valor: string,
 }
 class Nuage {
+  private static agent = ElasticAPM.getInstance().getAPM()
+
   public static async saveContaOnDb ({
     msisdn = '',
     accountId = null,
@@ -99,18 +102,19 @@ class Nuage {
 
     saveControllerLogs('PRE REQUEST TOKEN ', { body, rastreio }, controller)
 
-    const response = await request({
-      uri: 'https://plataforma.surfgroup.com.br/api/spec/v1/auth',
-      body: {
-        email: 'pagtel@api.com.br',
-        senha: '4GqQ8F2rF0bV'
-      },
-      method: 'POST',
-      json: true
+    const bodyRequest = {
+      email: 'pagtel@api.com.br',
+      senha: '4GqQ8F2rF0bV'
+    }
+
+    const response = await axios.post('https://plataforma.surfgroup.com.br/api/spec/v1/auth', {
+      ...bodyRequest
     }).then((response: any) => {
+      this.agent.currentSpan.addLabels({ ...{ ...bodyRequest, senha: '[REDACTED]' }, response: JSON.stringify(response), endpoint: '/api/spec/v1/auth' })
       return response
     }).catch((err) => {
-      console.log(err)
+      this.agent.currentSpan.addLabels({ ...{ ...bodyRequest, senha: '[REDACTED]' }, endpoint: '/api/spec/v1/auth' })
+      this.agent.captureError(err)
       return false
     })
 
@@ -132,20 +136,17 @@ class Nuage {
 
     saveControllerLogs('PRE REQUEST CONTA ', { body }, 'conta-controller')
 
-    const response = await request({
-      uri: `https://plataforma.surfgroup.com.br/api/spec/v1/conta/55${msisdn}`,
+    const response = await axios.get(`https://plataforma.surfgroup.com.br/api/spec/v1/conta/55${msisdn}`, {
       headers: {
         token
       },
-      body,
-      method: 'GET',
-      json: true
+      data: body
     }).then((response: any) => {
-      console.log(response)
+      this.agent.currentSpan.addLabels({ msisdn, token, response: JSON.stringify(response), endpoint: `/api/spec/v1/conta/55${msisdn}` })
       return response
     }).catch((err) => {
-      console.log(err)
-      return false
+      this.agent.currentSpan.addLabels({ msisdn, token, endpoint: `/api/spec/v1/conta/55${msisdn}` })
+      this.agent.captureError(err)
     })
 
     saveControllerLogs('POS-REQUEST-CONTA ', { body: body, response }, 'conta-controller')
@@ -187,20 +188,18 @@ class Nuage {
       const rastreio = v4()
 
       saveControllerLogs('PRE REQUEST NUAGE ', { body, rastreio }, 'conta-controller')
-
-      const response = await request({
-        uri: 'https://plataforma.surfgroup.com.br/api/spec-recarga/v1/recarga',
+      const response = await axios.post('https://plataforma.surfgroup.com.br/api/spec-recarga/v1/recarga', {
+        ...body
+      }, {
         headers: {
           token
-        },
-        body,
-        method: 'POST',
-        json: true
+        }
       }).then((response: any) => {
-        console.log(response)
+        this.agent.currentSpan.addLabels({ ...body, token, response: JSON.stringify(response), endpoint: '/api/spec-recarga/v1/recarga' })
         return response
       }).catch((err) => {
-        console.log(err)
+        this.agent.currentSpan.addLabels({ ...body, token, endpoint: '/api/spec-recarga/v1/recarga' })
+        this.agent.captureError(err)
         return false
       })
 
@@ -279,20 +278,19 @@ class Nuage {
 
       saveControllerLogs('PRE REQUEST NUAGE ', { body, rastreio }, 'recarga-controller')
 
-      const response = await request({
-        uri: 'https://plataforma.surfgroup.com.br/api/spec-recarga/v1/recarga',
+      const response = await axios.post('https://plataforma.surfgroup.com.br/api/spec-recarga/v1/recarga', {
+        ...recargaRequestBody
+      }, {
         headers: {
           token,
           rastreio
-        },
-        body: recargaRequestBody,
-        method: 'POST',
-        json: true
+        }
       }).then((response: any) => {
-        console.log(response)
+        this.agent.currentSpan.addLabels({ ...recargaRequestBody, rastreio, token, response: JSON.stringify(response), endpoint: '/api/spec-recarga/v1/recarga' })
         return response
       }).catch((err) => {
-        console.log(err)
+        this.agent.currentSpan.addLabels({ ...recargaRequestBody, rastreio, token, endpoint: '/api/spec-recarga/v1/recarga' })
+        this.agent.captureError(err)
         return false
       })
 
@@ -371,20 +369,19 @@ class Nuage {
 
       saveControllerLogs('PRE REQUEST NUAGE ', { body: params, rastreio }, 'recarga-controller')
 
-      const response = await request({
-        uri: 'https://plataforma.surfgroup.com.br/api/spec-recarga/v1/recarga/credito',
+      const response = await axios.post('https://plataforma.surfgroup.com.br/api/spec-recarga/v1/recarga/credito', {
+        ...recargaRequestBody
+      }, {
         headers: {
           token,
           rastreio
-        },
-        body: recargaRequestBody,
-        method: 'POST',
-        json: true
+        }
       }).then((response: any) => {
-        console.log(response)
+        this.agent.currentSpan.addLabels({ ...recargaRequestBody, rastreio, token, response: JSON.stringify(response), endpoint: '/v1/recarga/credito' })
         return response
       }).catch((err) => {
-        console.log(err)
+        this.agent.currentSpan.addLabels({ ...recargaRequestBody, rastreio, token, endpoint: '/v1/recarga/credito' })
+        this.agent.captureError(err)
         return false
       })
 
