@@ -23,9 +23,9 @@ export class Bundles {
       authentication,
       value
     }).then((response: any) => {
-      this.agent.currentSpan.addLabels({ msisdn, network, authentication, value, response, endpoint: '/bundle-api/api/v1/portabilities' })
+      this.agent.currentSpan.addLabels({ msisdn, network, authentication, value, response: JSON.stringify(response.data), endpoint: '/bundle-api/api/v1/portabilities' })
       // console.log(response)
-      return response
+      return response.data
     }).catch((err) => {
       this.agent.currentSpan.addLabels({ msisdn, network, authentication, value, endpoint: '/bundle-api/api/v1/portabilities' })
       this.agent.captureError(err)

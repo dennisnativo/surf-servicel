@@ -131,8 +131,8 @@ class ServCel {
         Authorization: auth
       }
     }).then((response: any) => {
-      this.agent.currentSpan.addLabels({ ...requestData, auth, response, endpoint: '/Hub360/topUp' })
-      return JSON.parse(response)
+      this.agent.currentSpan.addLabels({ ...requestData, auth, response: JSON.stringify(response.data), endpoint: '/Hub360/topUp' })
+      return response.data
     }).catch((err) => {
       this.agent.currentSpan.addLabels({ ...requestData, auth, endpoint: '/Hub360/topUp' })
       this.agent.captureError(err)
