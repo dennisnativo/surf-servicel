@@ -12,6 +12,7 @@ import {
   ITopUpResponse,
   IGetAuthResponse
 } from '../../interfaces/ServCel'
+import { ElasticAPM } from '../../infra/observability/apm'
 
 export const QueryController = (req: Request, res: Response) => {
   saveControllerLogs('INICIO            ', req.body, 'servcelConsulta-controller')
@@ -124,6 +125,7 @@ export const QueryController = (req: Request, res: Response) => {
         })
       })
       .catch((err: any) => {
+        ElasticAPM.getInstance().getAPM().captureError(err)
         saveControllerLogs('ERROR            ', { body: req.body, error: err.toString() }, 'servcelConsulta-controller', 'error')
 
         statusCode = 400
@@ -136,6 +138,7 @@ export const QueryController = (req: Request, res: Response) => {
         })
       })
   } catch (err) {
+    ElasticAPM.getInstance().getAPM().captureError(err)
     saveControllerLogs('ERROR            ', { body: req.body, error: err.toString() }, 'servcelConsulta-controller', 'error')
 
     statusCode = 400

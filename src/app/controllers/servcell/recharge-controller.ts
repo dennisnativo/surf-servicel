@@ -14,6 +14,7 @@ import {
 import { buildXml } from '../../helpers/xml'
 import { rechargeYupSchema } from '../../validation/yup'
 import { Bundles } from '../../models/Bundles'
+import { ElasticAPM } from '../../infra/observability/apm'
 
 interface NuageRequestsValues {
   rechargeValue: string;
@@ -337,6 +338,7 @@ export const RechargeController = (req: Request, res: Response) => {
         })
       })
       .catch((err: any) => {
+        ElasticAPM.getInstance().getAPM().captureError(err)
         saveControllerLogs(
           'ERROR            ',
           { body: req.body, error: err.toString() },
@@ -354,6 +356,7 @@ export const RechargeController = (req: Request, res: Response) => {
         })
       })
   } catch (err) {
+    ElasticAPM.getInstance().getAPM().captureError(err)
     saveControllerLogs(
       'ERROR            ',
       { body: req.body, error: err.toString() },
