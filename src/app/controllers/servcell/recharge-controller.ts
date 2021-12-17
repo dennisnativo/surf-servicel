@@ -340,7 +340,8 @@ export const RechargeController = (req: Request, res: Response) => {
         saveControllerLogs(
           'ERROR            ',
           { body: req.body, error: err.toString() },
-          'servcelRecarga-controller'
+          'servcelRecarga-controller',
+          'error'
         )
 
         statusCode = 400
@@ -356,7 +357,8 @@ export const RechargeController = (req: Request, res: Response) => {
     saveControllerLogs(
       'ERROR            ',
       { body: req.body, error: err.toString() },
-      'servcelRecarga-controller'
+      'servcelRecarga-controller',
+      'error'
     )
 
     statusCode = 400

@@ -3,7 +3,7 @@ import agent from 'elastic-apm-node'
 import { ELK } from '../../../utils/constants'
 
 export class ElasticAPM {
-  private apm: agent.Agent;
+  private apm;
 
   private static instance: ElasticAPM;
 

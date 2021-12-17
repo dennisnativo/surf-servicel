@@ -124,7 +124,7 @@ export const QueryController = (req: Request, res: Response) => {
         })
       })
       .catch((err: any) => {
-        saveControllerLogs('ERROR            ', { body: req.body, error: err.toString() }, 'servcelConsulta-controller')
+        saveControllerLogs('ERROR            ', { body: req.body, error: err.toString() }, 'servcelConsulta-controller', 'error')
 
         statusCode = 400
         console.log(err)
@@ -136,7 +136,7 @@ export const QueryController = (req: Request, res: Response) => {
         })
       })
   } catch (err) {
-    saveControllerLogs('ERROR            ', { body: req.body, error: err.toString() }, 'servcelConsulta-controller')
+    saveControllerLogs('ERROR            ', { body: req.body, error: err.toString() }, 'servcelConsulta-controller', 'error')
 
     statusCode = 400
     console.log(err)
