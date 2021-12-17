@@ -96,6 +96,15 @@ class Nuage {
     )
   }
 
+  private static NuageSpans (response: any) {
+    const span = this.agent.currentSpan
+    if (response.erro) {
+      span.addLabels({ erroDesc: response.descricao })
+      span.addLabels({ erroCod: response.erro })
+      span.addLabels({ erro: 'Erro' })
+    } else span.addLabels({ erro: 'Sucesso' })
+  }
+
   public static async geraToken (body = {}, controller: string = ''): Promise<string> {
     let token = ''
     const rastreio = v4()
@@ -111,9 +120,16 @@ class Nuage {
       ...bodyRequest
     }).then((response: any) => {
       this.agent.currentSpan.addLabels({ ...{ ...bodyRequest, senha: '[REDACTED]' }, response: JSON.stringify(response.data), endpoint: '/api/spec/v1/auth' })
+      this.NuageSpans(response.data)
       return response.data
     }).catch((err) => {
-      this.agent.currentSpan.addLabels({ ...{ ...bodyRequest, senha: '[REDACTED]' }, endpoint: '/api/spec/v1/auth' })
+      this.agent.currentSpan.addLabels({
+        ...{ ...bodyRequest, senha: '[REDACTED]' },
+        endpoint: '/api/spec/v1/auth',
+        erro: 'Erro',
+        erroCod: err.erro,
+        erroDesc: err.descicao
+      })
       this.agent.captureError(err)
       return false
     })
@@ -143,6 +159,7 @@ class Nuage {
       data: body
     }).then((response: any) => {
       this.agent.currentSpan.addLabels({ msisdn, token, response: JSON.stringify(response.data), endpoint: `/api/spec/v1/conta/55${msisdn}` })
+      this.NuageSpans(response.data)
       return response.data
     }).catch((err) => {
       this.agent.currentSpan.addLabels({ msisdn, token, endpoint: `/api/spec/v1/conta/55${msisdn}` })
@@ -196,6 +213,7 @@ class Nuage {
         }
       }).then((response: any) => {
         this.agent.currentSpan.addLabels({ ...body, token, response: JSON.stringify(response.data), endpoint: '/api/spec-recarga/v1/recarga' })
+        this.NuageSpans(response.data)
         return response.data
       }).catch((err) => {
         this.agent.currentSpan.addLabels({ ...body, token, endpoint: '/api/spec-recarga/v1/recarga' })
@@ -287,6 +305,7 @@ class Nuage {
         }
       }).then((response: any) => {
         this.agent.currentSpan.addLabels({ ...recargaRequestBody, rastreio, token, response: JSON.stringify(response.data), endpoint: '/api/spec-recarga/v1/recarga' })
+        this.NuageSpans(response.data)
         return response.data
       }).catch((err) => {
         this.agent.currentSpan.addLabels({ ...recargaRequestBody, rastreio, token, endpoint: '/api/spec-recarga/v1/recarga' })
@@ -378,6 +397,7 @@ class Nuage {
         }
       }).then((response: any) => {
         this.agent.currentSpan.addLabels({ ...recargaRequestBody, rastreio, token, response: JSON.stringify(response.data), endpoint: '/v1/recarga/credito' })
+        this.NuageSpans(response.data)
         return response.data
       }).catch((err) => {
         this.agent.currentSpan.addLabels({ ...recargaRequestBody, rastreio, token, endpoint: '/v1/recarga/credito' })
