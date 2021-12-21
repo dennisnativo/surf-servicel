@@ -128,7 +128,7 @@ class Nuage {
         endpoint: '/api/spec/v1/auth',
         erro: 'Erro',
         erroCod: err.erro || null,
-        erroDesc: err.descicao || null
+        erroDesc: err.descricao || null
       })
       this.agent.captureError(err)
       return false
@@ -168,7 +168,7 @@ class Nuage {
         endpoint: `/api/spec/v1/conta/55${msisdn}`,
         erro: 'Erro',
         erroCod: err.erro || null,
-        erroDesc: err.descicao || null
+        erroDesc: err.descricao || null
       })
       this.agent.captureError(err)
     })
@@ -229,7 +229,7 @@ class Nuage {
           endpoint: '/api/spec-recarga/v1/recarga',
           erro: 'Erro',
           erroCod: err.erro || null,
-          erroDesc: err.descicao || null
+          erroDesc: err.descricao || null
         })
         this.agent.captureError(err)
         return false
@@ -329,7 +329,7 @@ class Nuage {
           endpoint: '/api/spec-recarga/v1/recarga',
           erro: 'Erro',
           erroCod: err.erro || null,
-          erroDesc: err.descicao || null
+          erroDesc: err.descricao || null
         })
         this.agent.captureError(err)
         return false
@@ -429,7 +429,7 @@ class Nuage {
           endpoint: '/v1/recarga/credito',
           erro: 'Erro',
           erroCod: err.erro || null,
-          erroDesc: err.descicao || null
+          erroDesc: err.descricao || null
         })
         this.agent.captureError(err)
         return false
