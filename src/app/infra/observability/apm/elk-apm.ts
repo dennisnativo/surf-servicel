@@ -21,7 +21,7 @@ export class ElasticAPM {
 
   private start () {
     return agent.start({
-      serviceName: 'api-servcel',
+      serviceName: ELK.SERVICE_NAME,
       secretToken: ELK.SECRET_TOKEN,
       serverUrl: ELK.SERVER_URL,
       environment: ELK.ENVIRONMENT,

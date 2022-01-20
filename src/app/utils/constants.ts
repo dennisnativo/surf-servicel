@@ -17,6 +17,7 @@ export const DB = {
 }
 
 export const ELK = {
+  SERVICE_NAME: process.env.ELK_SERVICE_NAME || '',
   SECRET_TOKEN: process.env.ELK_SECRET_TOKEN || '',
   SERVER_URL: process.env.ELK_SERVER_URL || '',
   ENVIRONMENT: process.env.ELK_ENVIRONMENT || ''
