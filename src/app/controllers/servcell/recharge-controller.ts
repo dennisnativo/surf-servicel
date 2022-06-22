@@ -34,11 +34,13 @@ const nuageRequests =
     async ({ rechargeValue, creditValue }: NuageRequestsValues) => {
       const dtExecucao = dateFormat(new Date(), 'yyyy-mm-dd HH:MM:ss')
 
+      const channel = await ServCelModel.procGetOrigin(body.origem)
+
       const responseNuage = await NuageModel.procRecargaNuage({
         msisdn: '55' + body.msisdn,
         valor: rechargeValue,
         dtExecucao,
-        origem: 'PagtNliqNidNproServOutrNid',
+        origem: `PagtNliqNidNproServOutr${channel}`,
         nsu: responseTopUp.transactionID,
         recorrencia: 'N'
       })
@@ -221,11 +223,14 @@ export const RechargeController = (req: Request, res: Response) => {
                     })
                   } else {
                     // Recarga Nuage ********************************************
+
+                    const channel = await ServCelModel.procGetOrigin(body.origem)
+
                     const requestRecarga: IRecargaRequest = {
                       msisdn: '55' + body.msisdn,
                       valor: body.valor.replace(',', ''),
                       dtExecucao: dateFormat(new Date(), 'yyyy-mm-dd HH:MM:ss'),
-                      origem: 'PagtNliqNidNproServOutrNid',
+                      origem: `PagtNliqNidNproServOutr${channel}`,
                       nsu: responseTopUp.transactionID,
                       recorrencia: 'N'
                     }

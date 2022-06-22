@@ -1,5 +1,6 @@
 import dateFormat from 'dateformat'
 import request from 'request-promise'
+import axios from 'axios'
 import { v4 } from 'uuid'
 import sequelize from '../../database'
 import { saveControllerLogs } from '../helpers/logs'
@@ -99,16 +100,15 @@ class Nuage {
 
     saveControllerLogs('PRE REQUEST TOKEN ', { body, rastreio }, controller)
 
-    const response = await request({
-      uri: 'https://plataforma.surfgroup.com.br/api/spec/v1/auth',
-      body: {
+    const response = await axios.request({
+      url: 'https://plataforma.surfgroup.com.br/api/spec/v1/auth',
+      data: {
         email: 'pagtel@api.com.br',
         senha: '4GqQ8F2rF0bV'
       },
-      method: 'POST',
-      json: true
+      method: 'POST'
     }).then((response: any) => {
-      return response
+      return response.data
     }).catch((err) => {
       console.log(err)
       return false
@@ -132,17 +132,16 @@ class Nuage {
 
     saveControllerLogs('PRE REQUEST CONTA ', { body }, 'conta-controller')
 
-    const response = await request({
-      uri: `https://plataforma.surfgroup.com.br/api/spec/v1/conta/55${msisdn}`,
+    const response = await axios.request({
+      url: `https://plataforma.surfgroup.com.br/api/spec/v1/conta/55${msisdn}`,
       headers: {
         token
       },
-      body,
-      method: 'GET',
-      json: true
+      data: body,
+      method: 'GET'
     }).then((response: any) => {
-      console.log(response)
-      return response
+      console.log(response.data)
+      return response.data
     }).catch((err) => {
       console.log(err)
       return false
@@ -188,17 +187,16 @@ class Nuage {
 
       saveControllerLogs('PRE REQUEST NUAGE ', { body, rastreio }, 'conta-controller')
 
-      const response = await request({
-        uri: 'https://plataforma.surfgroup.com.br/api/spec-recarga/v1/recarga',
+      const response = await axios.request({
+        url: 'https://plataforma.surfgroup.com.br/api/spec-recarga/v1/recarga',
         headers: {
           token
         },
-        body,
-        method: 'POST',
-        json: true
+        data: body,
+        method: 'POST'
       }).then((response: any) => {
-        console.log(response)
-        return response
+        console.log(response.data)
+        return response.data
       }).catch((err) => {
         console.log(err)
         return false
@@ -279,18 +277,17 @@ class Nuage {
 
       saveControllerLogs('PRE REQUEST NUAGE ', { body, rastreio }, 'recarga-controller')
 
-      const response = await request({
-        uri: 'https://plataforma.surfgroup.com.br/api/spec-recarga/v1/recarga',
+      const response = await axios.request({
+        url: 'https://plataforma.surfgroup.com.br/api/spec-recarga/v1/recarga',
         headers: {
           token,
           rastreio
         },
-        body: recargaRequestBody,
-        method: 'POST',
-        json: true
+        data: recargaRequestBody,
+        method: 'POST'
       }).then((response: any) => {
-        console.log(response)
-        return response
+        console.log(response.data)
+        return response.data
       }).catch((err) => {
         console.log(err)
         return false
@@ -371,18 +368,17 @@ class Nuage {
 
       saveControllerLogs('PRE REQUEST NUAGE ', { body: params, rastreio }, 'recarga-controller')
 
-      const response = await request({
-        uri: 'https://plataforma.surfgroup.com.br/api/spec-recarga/v1/recarga/credito',
+      const response = await axios.request({
+        url: 'https://plataforma.surfgroup.com.br/api/spec-recarga/v1/recarga/credito',
         headers: {
           token,
           rastreio
         },
-        body: recargaRequestBody,
-        method: 'POST',
-        json: true
+        data: recargaRequestBody,
+        method: 'POST'
       }).then((response: any) => {
-        console.log(response)
-        return response
+        console.log(response.data)
+        return response.data
       }).catch((err) => {
         console.log(err)
         return false

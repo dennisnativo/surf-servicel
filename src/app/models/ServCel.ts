@@ -69,6 +69,22 @@ class ServCel {
     return response.plintron
   }
 
+  public static async procGetOrigin (origin: string): Promise<string> {
+    const response = await sequelize.query(
+      'SELECT TOP (1) * FROM [Hub360].[recharge].[tb_servCel_origem] WHERE idOrigem = ?',
+      { type: QueryTypes.SELECT, replacements: [origin] }
+    )
+      .then((response: any) => {
+        return response[0]
+      })
+      .catch((err: any) => {
+        console.log(err)
+        return null
+      })
+
+    return response ? response.canal : 'Nid'
+  }
+
   public static async procGetAuth (msisdn: string, operadora: string): Promise<any> {
     const response = await sequelize.query(
       `Exec [Hub360].[recharge].[USP_SERVCEL_GETAUTH]
