@@ -352,7 +352,7 @@ export const RechargeController = (req: Request, res: Response) => {
           }
         })
       })
-  } catch (err) {
+  } catch (err: any) {
     saveControllerLogs(
       'ERROR            ',
       { body: req.body, error: err.toString() },

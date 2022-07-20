@@ -110,6 +110,7 @@ class Nuage {
     }).then((response: any) => {
       return response
     }).catch((err) => {
+      saveControllerLogs('ERROR REQUEST NUAGE ', { error: err }, controller)
       console.log(err)
       return false
     })
@@ -144,6 +145,7 @@ class Nuage {
       console.log(response)
       return response
     }).catch((err) => {
+      saveControllerLogs('ERROR REQUEST NUAGE ', { error: err }, 'conta-controller')
       console.log(err)
       return false
     })
@@ -200,6 +202,7 @@ class Nuage {
         console.log(response)
         return response
       }).catch((err) => {
+        saveControllerLogs('ERROR REQUEST NUAGE ', { error: err }, 'conta-controller')
         console.log(err)
         return false
       })
@@ -292,6 +295,7 @@ class Nuage {
         console.log(response)
         return response
       }).catch((err) => {
+        saveControllerLogs('ERROR REQUEST NUAGE ', { error: err }, 'recarga-controller')
         console.log(err)
         return false
       })
@@ -384,6 +388,7 @@ class Nuage {
         console.log(response)
         return response
       }).catch((err) => {
+        saveControllerLogs('ERROR REQUEST NUAGE ', { error: err }, 'recarga-controller')
         console.log(err)
         return false
       })
