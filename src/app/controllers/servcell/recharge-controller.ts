@@ -38,7 +38,7 @@ const nuageRequests =
         msisdn: '55' + body.msisdn,
         valor: rechargeValue,
         dtExecucao,
-        origem: 'ServCel',
+        origem: 'PagtNliqNidNproServOutrNid',
         nsu: responseTopUp.transactionID,
         recorrencia: 'N'
       })
@@ -225,7 +225,7 @@ export const RechargeController = (req: Request, res: Response) => {
                       msisdn: '55' + body.msisdn,
                       valor: body.valor.replace(',', ''),
                       dtExecucao: dateFormat(new Date(), 'yyyy-mm-dd HH:MM:ss'),
-                      origem: 'ServCel',
+                      origem: 'PagtNliqNidNproServOutrNid',
                       nsu: responseTopUp.transactionID,
                       recorrencia: 'N'
                     }
@@ -352,7 +352,7 @@ export const RechargeController = (req: Request, res: Response) => {
           }
         })
       })
-  } catch (err) {
+  } catch (err: any) {
     saveControllerLogs(
       'ERROR            ',
       { body: req.body, error: err.toString() },

@@ -1,9 +1,9 @@
-import request from 'request-promise'
 import dateFormat from 'dateformat'
+import request from 'request-promise'
 import { v4 } from 'uuid'
 import sequelize from '../../database'
-import { IRecargaRequest } from '../interfaces/ServCel'
 import { saveControllerLogs } from '../helpers/logs'
+import { IRecargaRequest } from '../interfaces/ServCel'
 import axios from 'axios'
 import Agent from 'agentkeepalive'
 import NodeCache from 'node-cache'
@@ -245,7 +245,7 @@ class Nuage {
         msisdn: '55' + msisdn,
         valor: valor.trim().replace(',', ''),
         dtExecucao: dateFormat(new Date(), 'yyyy-mm-dd HH:MM:ss'),
-        origem: 'ServCel',
+        origem: 'PagtNliqNidNproServOutrNid',
         nsu: v4(),
         simular: 1
       }
