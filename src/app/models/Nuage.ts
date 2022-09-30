@@ -201,6 +201,7 @@ class Nuage {
         return response
       }).catch((err) => {
         console.log(err)
+        saveControllerLogs('ERROR REQUEST NUAGE ', { err }, 'conta-controller')
         return false
       })
 
