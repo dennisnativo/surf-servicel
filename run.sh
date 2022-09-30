@@ -5,7 +5,7 @@ BASE_CONTAINER_NAME=servcel
 API_CONTAINER_NAME=${BASE_CONTAINER_NAME}-api
 API_PORT=3346
 API_VOLUME=/api
-API_COMMAND="yarn && yarn tsc && yarn start"
+API_COMMAND="yarn && yarn build && yarn pm2 start ./ecosystem.config.js && yarn pm2 monit"
 
 NODE_VERSION=node:14.15.2
 
