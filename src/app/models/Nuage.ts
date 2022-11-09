@@ -226,7 +226,7 @@ class Nuage {
         'conta-controller'
       )
 
-      if (response?.sucesso) return response.resultado.mvno
+      if (response?.sucesso === 0) return response.resultado.mvno
 
       return null
     } catch (error) {

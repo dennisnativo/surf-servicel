@@ -45,6 +45,7 @@ export const QueryController = (req: Request, res: Response) => {
           saveControllerLogs('POS VALID MSISDN  ', body, 'servcelConsulta-controller')
 
           const mvnoNuage = await NuageModel.checkMvno(body.msisdn)
+          saveControllerLogs('MVNO CONTA NUAGE   ', { body, mvnoNuage }, 'servcelConsulta-controller')
 
           if (mvnoNuage === 'UBER CHIP') {
             response.codResposta = '12'
