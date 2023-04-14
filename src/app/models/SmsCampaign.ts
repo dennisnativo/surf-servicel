@@ -6,16 +6,16 @@ type CreateCampaignRegisterProps = {
   msisdn: string;
   network: string;
   valorPlano: string;
-  fluxo?: 'SWE' | 'STR'
+  fluxo?: 'SWE' | 'STR';
 };
 
-type AllowIncludeSmsCampaignParams= {
-  msisdn: string
-  network: string
-  sourceId: number
-  value: string
-  fluxo?: 'SWE'
-}
+type AllowIncludeSmsCampaignParams = {
+  msisdn: string;
+  network: string;
+  sourceId: number;
+  value: string;
+  fluxo?: 'SWE';
+};
 
 export class SmsCampaign {
   public static async createInSmsCampaign ({
@@ -24,7 +24,7 @@ export class SmsCampaign {
     valorPlano
   }: CreateCampaignRegisterProps) {
     const response = request({
-      uri: `${process.env.API_SMS_CAMPAIGN}reminder}`,
+      uri: `${process.env.API_SMS_CAMPAIGN}reminder`,
       body: {
         msisdn,
         network,
@@ -45,16 +45,19 @@ export class SmsCampaign {
     return response
   }
 
-  public static procAllowToIncludeInSmsCampaign = async (params: AllowIncludeSmsCampaignParams) => {
-    const response = await sequelize.query(
-      `EXEC [Hub360].[reminder].[USP_CHECK_MSISDN] 
+  public static procAllowToIncludeInSmsCampaign = async (
+    params: AllowIncludeSmsCampaignParams
+  ) => {
+    const response:{status:boolean} = await sequelize
+      .query(
+        `EXEC [Hub360].[reminder].[USP_CHECK_MSISDN] 
       @msisdn = '${params.msisdn}',
       @network = '${params.network}',
       @sourceId = ${params.sourceId},
       @value = '${params.value}',
-      @fluxo = '${params.fluxo}'`,
-      { type: QueryTypes.SELECT }
-    )
+      @fluxo = 'SWE'`,
+        { type: QueryTypes.SELECT }
+      )
       .then((response: any) => {
         return response[0]
       })
@@ -63,6 +66,7 @@ export class SmsCampaign {
         return null
       })
 
-    return response
-  }
+    const { status } = response
+    return status
+  };
 }
