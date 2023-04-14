@@ -14,6 +14,7 @@ import {
 import { buildXml } from '../../helpers/xml'
 import { rechargeYupSchema } from '../../validation/yup'
 import { Bundles } from '../../models/Bundles'
+import { SmsCampaign } from '../../models/SmsCampaign'
 
 interface NuageRequestsValues {
   rechargeValue: string;
@@ -322,6 +323,19 @@ export const RechargeController = (req: Request, res: Response) => {
             },
             'servcelRecarga-controller'
           )
+
+          const isAllowToIncludeInSmsCampaign = await SmsCampaign.procAllowToIncludeInSmsCampaign({
+            msisdn: `55${body.msisdn}`,
+            network: responseGetAuth.network,
+            value: body.valor.replace(',', ''),
+            sourceId: 195
+          })
+
+          isAllowToIncludeInSmsCampaign && await SmsCampaign.createInSmsCampaign({
+            msisdn: `55${body.msisdn}`,
+            network: responseGetAuth.network,
+            valorPlano: body.valor.replace(',', '')
+          })
         }
 
         saveControllerLogs(

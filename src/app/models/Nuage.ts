@@ -113,7 +113,7 @@ class Nuage {
       console.log(err)
       return false
     })
-
+    console.log({ token: response })
     token = response?.sucesso === 0 ? response.token : ''
 
     saveControllerLogs('PEGOU TOKEN       ', { body, token }, controller)
