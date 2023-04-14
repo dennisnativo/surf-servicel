@@ -6,6 +6,8 @@ type CreateCampaignRegisterProps = {
   msisdn: string;
   network: string;
   valorPlano: string;
+  topUp: string;
+  valuePaid: string;
   fluxo?: 'SWE' | 'STR';
 };
 

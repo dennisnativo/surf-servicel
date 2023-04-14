@@ -334,7 +334,9 @@ export const RechargeController = (req: Request, res: Response) => {
           isAllowToIncludeInSmsCampaign && await SmsCampaign.createInSmsCampaign({
             msisdn: `55${body.msisdn}`,
             network: responseGetAuth.network,
-            valorPlano: body.valor.replace(',', '')
+            valorPlano: body.valor.replace(',', ''),
+            topUp: body.valor.replace(',', ''),
+            valuePaid: body.valor.replace(',', '')
           })
         }
 
