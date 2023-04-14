@@ -23,6 +23,8 @@ export class SmsCampaign {
   public static async createInSmsCampaign ({
     msisdn,
     network,
+    topUp,
+    valuePaid,
     valorPlano
   }: CreateCampaignRegisterProps) {
     const response = request({
@@ -30,6 +32,8 @@ export class SmsCampaign {
       body: {
         msisdn,
         network,
+        topUp,
+        valuePaid,
         valorPlano,
         fluxo: 'SWE'
       },
