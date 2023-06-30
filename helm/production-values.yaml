@@ -1,0 +1,88 @@
+replicaCount: 1
+
+image:
+  repository: 'pagtel-phoenix/surf-servicel'
+  pullPolicy: Always
+  tag: ''
+
+imagePullSecrets:
+  - name: 'githubaccess'
+
+nameOverride: 'surfservicelmicroservice'
+fullnameOverride: 'surfservicelmicroservice'
+
+serviceAccount:
+  create: false
+  annotations: {}
+  name: ''
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext:
+
+service:
+  enabled: true
+  type: NodePort
+  port: 3346
+
+resources:
+requests:
+   cpu: 350m
+   memory: 500Mi
+limits:
+   cpu: 450m
+   memory: 700Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+check:
+  readiness:
+    enabled: true
+    tcp:
+      ip: 192.168.100.8
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+ingress:
+  enabled: false
+  className: ''
+  annotations: {}
+
+  hosts:
+    []
+  tls: []
+
+configs:
+  - name: NODE_ENV
+    refName: surf-servicel-microservice
+
+  - name: PORT
+    refName: surf-servicel-microservice
+
+  - name: DB_HOST
+    refName: surf-servicel-microservice
+
+  - name: DB_PORT
+    refName: surf-servicel-microservice
+
+  - name: DB_INSTANCENAME
+    refName: surf-servicel-microservice
+
+  - name: DB_HUB360_DATABASE
+    refName: surf-servicel-microservice
+
+  - name: DB_USERNAME
+    refName: surf-servicel-microservice 
