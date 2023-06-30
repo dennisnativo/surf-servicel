@@ -8,8 +8,8 @@ image:
 imagePullSecrets:
   - name: 'githubaccess'
 
-nameOverride: 'surfservicelmicroservice'
-fullnameOverride: 'surfservicelmicroservice'
+nameOverride: 'surf-servicelmicroservice'
+fullnameOverride: 'surf-servicelmicroservice'
 
 serviceAccount:
   create: false
@@ -50,7 +50,7 @@ affinity: {}
 
 check:
   readiness:
-    enabled: true
+    enabled: false
     tcp:
       ip: 192.168.100.8
       initialDelaySeconds: 5
