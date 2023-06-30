@@ -1,6 +1,7 @@
 replicaCount: 1
 
 image:
+  registry: docker.io
   repository: 'pagtel-phoenix/surf-servicel'
   pullPolicy: Always
   tag: ''
